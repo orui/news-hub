@@ -917,7 +917,7 @@
             url: 'https://newsapi.org/v2/top-headlines',
             params: {
               country: 'jp',
-              apiKey: 'YOUR_API_KEY', // 無料登録で取得
+              apiKey: '37bec8593888416299df95ed455407f8', // 無料登録で取得
               pageSize: 10
             },
             category: 'general'
@@ -1075,6 +1075,352 @@
 
 推奨: NewsAPI.orgで無料API Keyを取得
 `);
+    
+        </script>
+        
+        <script>
+        
+    // 🔑 NewsAPI Integration with Real API Key
+    class NewsAPIIntegration {
+      constructor() {
+        this.apiKey = '37bec8593888416299df95ed455407f8';
+        this.baseUrl = 'https://newsapi.org/v2';
+        this.proxyUrl = 'https://api.allorigins.win/get';
+        this.cache = new Map();
+        this.cacheTimeout = 10 * 60 * 1000; // 10分キャッシュ
+      }
+
+      async fetchWithCORS(url) {
+        try {
+          const proxyUrl = `${this.proxyUrl}?url=${encodeURIComponent(url)}`;
+          const response = await fetch(proxyUrl);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          return JSON.parse(data.contents);
+        } catch (error) {
+          console.error('NewsAPI fetch error:', error);
+          return null;
+        }
+      }
+
+      async getTopHeadlines(category = null, country = 'jp') {
+        const cacheKey = `headlines-${category || 'general'}-${country}`;
+        const cached = this.cache.get(cacheKey);
+        
+        if (cached && (Date.now() - cached.timestamp < this.cacheTimeout)) {
+          return cached.articles;
+        }
+
+        console.log(`📰 Fetching ${category ? category + ' ' : ''}headlines from NewsAPI...`);
+
+        const url = new URL(`${this.baseUrl}/top-headlines`);
+        url.searchParams.set('apiKey', this.apiKey);
+        url.searchParams.set('country', country);
+        url.searchParams.set('pageSize', '20');
+        
+        if (category && category !== 'general') {
+          url.searchParams.set('category', category);
+        }
+
+        try {
+          const data = await this.fetchWithCORS(url.toString());
+          
+          if (!data || data.status !== 'ok') {
+            console.error('NewsAPI error:', data?.message || 'Unknown error');
+            return [];
+          }
+
+          const articles = this.parseNewsAPIResponse(data, category || 'general');
+          
+          // キャッシュに保存
+          this.cache.set(cacheKey, {
+            articles: articles,
+            timestamp: Date.now()
+          });
+
+          return articles;
+        } catch (error) {
+          console.error('Error fetching headlines:', error);
+          return [];
+        }
+      }
+
+      async getEverything(query, language = 'jp') {
+        const cacheKey = `everything-${query}-${language}`;
+        const cached = this.cache.get(cacheKey);
+        
+        if (cached && (Date.now() - cached.timestamp < this.cacheTimeout)) {
+          return cached.articles;
+        }
+
+        console.log(`🔍 Searching NewsAPI for: ${query}`);
+
+        const url = new URL(`${this.baseUrl}/everything`);
+        url.searchParams.set('apiKey', this.apiKey);
+        url.searchParams.set('q', query);
+        url.searchParams.set('language', language);
+        url.searchParams.set('sortBy', 'publishedAt');
+        url.searchParams.set('pageSize', '15');
+
+        try {
+          const data = await this.fetchWithCORS(url.toString());
+          
+          if (!data || data.status !== 'ok') {
+            console.error('NewsAPI search error:', data?.message || 'Unknown error');
+            return [];
+          }
+
+          const articles = this.parseNewsAPIResponse(data, 'search');
+          
+          // キャッシュに保存
+          this.cache.set(cacheKey, {
+            articles: articles,
+            timestamp: Date.now()
+          });
+
+          return articles;
+        } catch (error) {
+          console.error('Error searching news:', error);
+          return [];
+        }
+      }
+
+      parseNewsAPIResponse(data, category) {
+        const articles = [];
+        
+        if (data.articles && Array.isArray(data.articles)) {
+          data.articles.forEach(article => {
+            // 無効な記事をフィルター
+            if (!article.title || article.title === '[Removed]' || 
+                !article.url || article.url.includes('removed.com')) {
+              return;
+            }
+
+            articles.push({
+              title: this.cleanTitle(article.title),
+              summary: this.cleanSummary(article.description || article.title),
+              category: this.mapCategory(category),
+              source: this.cleanSourceName(article.source?.name || 'NewsAPI'),
+              time: this.formatTime(article.publishedAt),
+              url: article.url,
+              image: article.urlToImage && article.urlToImage !== 'null' ? article.urlToImage : null,
+              author: article.author
+            });
+          });
+        }
+
+        return articles;
+      }
+
+      cleanTitle(title) {
+        if (!title) return 'タイトル不明';
+        return title.replace(/\s+/g, ' ').trim().substring(0, 100);
+      }
+
+      cleanSummary(description) {
+        if (!description) return '';
+        return description.replace(/\s+/g, ' ').trim().substring(0, 150) + 
+               (description.length > 150 ? '...' : '');
+      }
+
+      cleanSourceName(sourceName) {
+        if (!sourceName) return 'Unknown';
+        return sourceName.replace(/\.com$/, '').trim();
+      }
+
+      mapCategory(apiCategory) {
+        const categoryMap = {
+          'general': 'general',
+          'business': 'business',
+          'technology': 'technology',
+          'science': 'technology',
+          'health': 'health',
+          'sports': 'sports',
+          'entertainment': 'entertainment',
+          'search': 'general'
+        };
+        
+        return categoryMap[apiCategory] || 'general';
+      }
+
+      formatTime(publishedAt) {
+        try {
+          const date = new Date(publishedAt);
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+          
+          if (diffMins < 1) {
+            return 'たった今';
+          } else if (diffMins < 60) {
+            return `${diffMins}分前`;
+          } else if (diffHours < 24) {
+            return `${diffHours}時間前`;
+          } else if (diffDays < 7) {
+            return `${diffDays}日前`;
+          } else {
+            return date.toLocaleDateString('ja-JP', {
+              month: 'short',
+              day: 'numeric'
+            });
+          }
+        } catch (error) {
+          return '時間不明';
+        }
+      }
+
+      async loadAllCategories() {
+        console.log('📊 Loading news from all NewsAPI categories...');
+        
+        const categories = ['general', 'business', 'technology', 'sports', 'health'];
+        const promises = categories.map(cat => this.getTopHeadlines(cat));
+        
+        try {
+          const results = await Promise.allSettled(promises);
+          const allArticles = [];
+          
+          results.forEach((result, index) => {
+            if (result.status === 'fulfilled') {
+              allArticles.push(...result.value);
+              console.log(`✅ ${categories[index]}: ${result.value.length} articles`);
+            } else {
+              console.error(`❌ ${categories[index]} failed:`, result.reason);
+            }
+          });
+          
+          // 重複除去
+          const uniqueArticles = this.removeDuplicates(allArticles);
+          console.log(`📰 Total unique articles: ${uniqueArticles.length}`);
+          
+          return uniqueArticles;
+        } catch (error) {
+          console.error('Error loading all categories:', error);
+          return [];
+        }
+      }
+
+      removeDuplicates(articles) {
+        const seen = new Set();
+        return articles.filter(article => {
+          const key = article.title + article.source;
+          if (seen.has(key)) {
+            return false;
+          }
+          seen.add(key);
+          return true;
+        });
+      }
+
+      // APIステータス確認
+      async checkAPIStatus() {
+        try {
+          const url = `${this.baseUrl}/top-headlines?country=us&pageSize=1&apiKey=${this.apiKey}`;
+          const data = await this.fetchWithCORS(url);
+          
+          if (data && data.status === 'ok') {
+            console.log('✅ NewsAPI connection successful');
+            return true;
+          } else {
+            console.error('❌ NewsAPI connection failed:', data?.message);
+            return false;
+          }
+        } catch (error) {
+          console.error('❌ NewsAPI status check error:', error);
+          return false;
+        }
+      }
+    }
+
+    // News Hubに統合
+    if (typeof window !== 'undefined' && window.newsHub) {
+      window.newsHub.newsAPI = new NewsAPIIntegration();
+      
+      // 既存のloadNews methodを拡張
+      const originalLoadNews = window.newsHub.loadNews;
+      
+      window.newsHub.loadNews = async function() {
+        try {
+          console.log('🚀 Loading news from enhanced sources...');
+          this.showStatusMessage('📰 最新ニュースを取得中...', 'info');
+          
+          // NewsAPIからニュース取得
+          const newsAPIArticles = await this.newsAPI.loadAllCategories();
+          
+          // 既存のスクレイピング結果と統合
+          let scrapingArticles = [];
+          if (this.scrapingSystem) {
+            scrapingArticles = await this.scrapingSystem.loadAllNews();
+          }
+          
+          // 結果を統合
+          const allArticles = [...newsAPIArticles, ...scrapingArticles];
+          const uniqueArticles = this.removeDuplicatesByTitle(allArticles);
+          
+          this.newsData = uniqueArticles;
+          this.filterNews();
+          
+          if (uniqueArticles.length > 0) {
+            this.showStatusMessage(
+              `📰 ${uniqueArticles.length}件のニュースを取得しました (NewsAPI: ${newsAPIArticles.length}件, スクレイピング: ${scrapingArticles.length}件)`, 
+              'success'
+            );
+          } else {
+            this.showStatusMessage('ニュースの取得に失敗しました', 'error');
+          }
+        } catch (error) {
+          console.error('Error loading news:', error);
+          this.showStatusMessage('ニュース取得中にエラーが発生しました', 'error');
+        }
+      };
+      
+      // 重複除去メソッド追加
+      window.newsHub.removeDuplicatesByTitle = function(articles) {
+        const seen = new Set();
+        return articles.filter(article => {
+          const key = article.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+          if (seen.has(key)) {
+            return false;
+          }
+          seen.add(key);
+          return true;
+        });
+      };
+      
+      // NewsAPI検索機能追加
+      window.newsHub.searchNewsAPI = async function(query) {
+        if (!query) return;
+        
+        console.log(`🔍 Searching NewsAPI for: ${query}`);
+        this.showStatusMessage(`🔍 "${query}" を検索中...`, 'info');
+        
+        const searchResults = await this.newsAPI.getEverything(query);
+        
+        if (searchResults.length > 0) {
+          this.newsData = [...this.newsData, ...searchResults];
+          this.filterNews();
+          this.showStatusMessage(`🔍 "${query}" の検索結果: ${searchResults.length}件`, 'success');
+        } else {
+          this.showStatusMessage(`🔍 "${query}" の検索結果は見つかりませんでした`, 'info');
+        }
+      };
+      
+      // APIステータスチェック
+      setTimeout(async () => {
+        const status = await window.newsHub.newsAPI.checkAPIStatus();
+        if (status) {
+          console.log('🔑 NewsAPI Key verified and working');
+        }
+      }, 500);
+      
+      console.log('🔑 NewsAPI integration completed successfully');
+      console.log('📊 Available categories: general, business, technology, sports, health');
+    }
     
         </script>
         </body>
