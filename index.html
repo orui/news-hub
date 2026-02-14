@@ -3,47 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📰 News Hub - 最新ニュースまとめサイト</title>
+    <title>📰 News Hub - Professional Dashboard</title>
     
     <!-- Meta Tags -->
-    <meta name="description" content="最新ニュースを複数のソースから自動取得して表示する動的ニュースまとめサイト">
-    <meta name="keywords" content="ニュース, 最新情報, まとめ, RSS, 動的更新">
-    <meta name="author" content="News Hub">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="News Hub - 最新ニュースまとめサイト">
-    <meta property="og:description" content="複数のニュースソースから最新情報を自動取得">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://orui.github.io/news-hub/">
+    <meta name="description" content="Professional news dashboard with market data and personal insights">
+    <meta name="keywords" content="ニュース, 市場, ダッシュボード, AI要約">
+    <meta name="author" content="News Hub Pro">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
     
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
     <style>
-        /* CSS Variables for Theme */
+        /* CSS Variables for Professional Theme */
         :root {
-            --primary-color: #2563eb;
-            --secondary-color: #64748b;
-            --accent-color: #f59e0b;
-            --text-primary: #1e293b;
+            --bg-primary: #f5f7fa;
+            --bg-secondary: #ffffff;
+            --bg-accent: #1a1d23;
+            --text-primary: #1a1d23;
             --text-secondary: #64748b;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
+            --text-light: #94a3b8;
+            --accent-blue: #00d4ff;
+            --accent-green: #00ff88;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f59e0b;
             --border-color: #e2e8f0;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
         }
 
         /* Dark Mode */
         [data-theme="dark"] {
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --border-color: #334155;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1d23;
+            --bg-accent: #ffffff;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-light: #64748b;
+            --border-color: #2d3748;
         }
 
-        /* Reset & Base Styles */
+        /* Reset & Base */
         * {
             margin: 0;
             padding: 0;
@@ -51,253 +58,515 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
             color: var(--text-primary);
-            background-color: var(--bg-primary);
-            transition: all 0.3s ease;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* Authentication Styles (keep existing) */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .auth-form {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .auth-title {
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .auth-input {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border: 1px solid #ddd;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+        }
+        
+        .auth-button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+        
+        .auth-button:hover {
+            background: #5a6fd8;
+        }
+        
+        .auth-error {
+            color: #e74c3c;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .main-content.hidden {
+            display: none;
         }
 
         /* Header */
         .header {
-            background: var(--bg-primary);
+            background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
+            padding: 1rem 2rem;
             position: sticky;
             top: 0;
             z-index: 1000;
+            backdrop-filter: blur(10px);
         }
 
         .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            max-width: 1600px;
+            margin: 0 auto;
         }
 
         .logo {
             display: flex;
             align-items: center;
             font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-
-        .logo-icon {
-            margin-right: 0.5rem;
-            font-size: 2rem;
-        }
-
-        /* Navigation */
-        .nav {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .nav-item {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            transition: all 0.2s ease;
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            color: var(--primary-color);
-            background: var(--bg-secondary);
-        }
-
-        /* Controls */
-        .controls {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .search-input {
-            padding: 0.5rem 2.5rem 0.5rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            background: var(--bg-secondary);
+            font-weight: 800;
             color: var(--text-primary);
-            min-width: 200px;
+            text-decoration: none;
         }
 
-        .search-btn {
-            position: absolute;
-            right: 0.5rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 1rem;
+        .logo-text {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-left: 0.5rem;
         }
 
-        .theme-toggle {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 1.2rem;
+        .header-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .control-btn {
             padding: 0.5rem;
-            border-radius: 0.5rem;
+            background: none;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            color: var(--text-secondary);
             transition: all 0.2s ease;
+            font-size: 1.1rem;
         }
 
-        .theme-toggle:hover {
-            background: var(--bg-secondary);
+        .control-btn:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
         }
 
-        /* Main Content */
-        .main {
-            max-width: 1200px;
+        /* Main Layout - 3 Column */
+        .dashboard {
+            max-width: 1600px;
             margin: 0 auto;
             padding: 2rem;
-        }
-
-        /* Category Filter */
-        .category-filter {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .category-btn {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            border-radius: 2rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.9rem;
-        }
-
-        .category-btn:hover,
-        .category-btn.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        /* News Grid */
-        .news-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: 350px 1fr 350px;
             gap: 2rem;
-            margin-bottom: 2rem;
+            min-height: calc(100vh - 100px);
         }
 
-        /* News Card */
-        .news-card {
-            background: var(--bg-primary);
+        /* Column Headers */
+        .column-header {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            padding-left: 0.5rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
             border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
+            box-shadow: var(--shadow-sm);
             overflow: hidden;
-            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
             transition: all 0.3s ease;
         }
 
-        .news-card:hover {
-            box-shadow: var(--shadow-lg);
+        .card:hover {
+            box-shadow: var(--shadow-md);
             transform: translateY(-2px);
         }
 
-        .news-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            background: var(--bg-secondary);
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            font-size: 3rem;
         }
 
-        .news-content {
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-content {
             padding: 1.5rem;
+        }
+
+        /* LEFT COLUMN - SHORT & FAST */
+        .left-column {
+            overflow-y: auto;
+            max-height: calc(100vh - 150px);
+        }
+
+        .news-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
         }
 
         .news-category {
             display: inline-block;
-            background: var(--accent-color);
+            background: var(--accent-blue);
             color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
+            font-size: 0.6rem;
             font-weight: 600;
-            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.02em;
         }
 
         .news-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 500;
             line-height: 1.4;
-        }
-
-        .news-title a {
             color: var(--text-primary);
-            text-decoration: none;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
         }
 
-        .news-title a:hover {
-            color: var(--primary-color);
+        .news-title:hover {
+            color: var(--accent-blue);
         }
 
         .news-summary {
+            font-size: 0.8rem;
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            line-height: 1.5;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
         }
 
         .news-meta {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
+            font-size: 0.7rem;
+            color: var(--text-light);
         }
 
-        .news-source {
-            font-weight: 500;
+        /* CENTER COLUMN - MAIN VISUAL */
+        .center-column {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
         }
 
-        .news-time {
-            font-style: italic;
+        .main-story {
+            position: relative;
+            background: var(--bg-accent);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            color: white;
         }
 
-        /* Loading State */
-        .loading {
+        .main-story-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1d23 0%, #2d3748 100%);
+            z-index: 1;
+        }
+
+        .main-story-content {
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+        }
+
+        .main-story-category {
+            background: var(--accent-green);
+            color: black;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .main-story-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .main-story-summary {
+            font-size: 1rem;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .secondary-stories {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .secondary-story {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .secondary-story:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .secondary-story-source {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-purple);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .secondary-story-title {
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.3;
+            color: var(--text-primary);
+        }
+
+        /* RIGHT COLUMN - MARKET & PERSONAL */
+        .right-column {
+            overflow-y: auto;
+            max-height: calc(100vh - 150px);
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-item {
             text-align: center;
-            padding: 3rem;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+
+        .metric-change {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .metric-up { color: var(--accent-green); }
+        .metric-down { color: #ef4444; }
+
+        .chart-placeholder {
+            height: 80px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            border-radius: var(--radius-sm);
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-placeholder::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40"><path d="M0,30 Q25,10 50,20 T100,15" stroke="white" stroke-width="2" fill="none" opacity="0.7"/></svg>');
+            background-size: cover;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.25rem;
+            font-size: 0.8rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-day:hover {
+            background: var(--bg-primary);
+        }
+
+        .calendar-day.today {
+            background: var(--accent-purple);
+            color: white;
+        }
+
+        .calendar-header {
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 0.5rem 0;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+
+        .todo-checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .todo-checkbox.checked {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+
+        .todo-text {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .weather-widget {
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .weather-temp {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-blue);
+        }
+
+        .weather-condition {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .weight-chart-small {
+            width: 100%;
+            height: 120px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .weight-chart-small:hover {
+            transform: scale(1.02);
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
             color: var(--text-secondary);
         }
 
         .spinner {
-            display: inline-block;
-            width: 2rem;
-            height: 2rem;
-            border: 3px solid var(--border-color);
-            border-top: 3px solid var(--primary-color);
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--accent-blue);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
+            margin-right: 0.5rem;
         }
 
         @keyframes spin {
@@ -305,46 +574,50 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Status Messages */
-        .status-message {
-            text-align: center;
-            padding: 2rem;
-            background: var(--bg-secondary);
-            border-radius: 0.75rem;
-            margin: 2rem 0;
-        }
-
-        .error-message {
-            color: #dc2626;
-        }
-
-        .success-message {
-            color: #059669;
-        }
-
         /* Responsive */
-        @media (max-width: 768px) {
-            .header-content {
-                padding: 1rem;
-                flex-direction: column;
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 300px 1fr 300px;
                 gap: 1rem;
-            }
-
-            .nav {
-                gap: 1rem;
-            }
-
-            .search-input {
-                min-width: 150px;
-            }
-
-            .main {
                 padding: 1rem;
             }
+        }
 
-            .news-grid {
+        @media (max-width: 1024px) {
+            .dashboard {
                 grid-template-columns: 1fr;
                 gap: 1rem;
+            }
+            
+            .left-column, .right-column {
+                max-height: none;
+                overflow-y: visible;
+            }
+
+            .secondary-stories {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .dashboard {
+                padding: 1rem;
+            }
+            
+            .main-story {
+                min-height: 300px;
+            }
+            
+            .main-story-title {
+                font-size: 1.4rem;
+            }
+
+            .metric-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -355,6 +628,11 @@
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
             }
+        }
+
+        button:focus, input:focus, a:focus {
+            outline: 2px solid var(--accent-blue);
+            outline-offset: 2px;
         }
 
         .sr-only {
@@ -368,2804 +646,268 @@
             white-space: nowrap;
             border: 0;
         }
-
-        /* Focus styles */
-        button:focus,
-        input:focus,
-        a:focus {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
-        }
-    
-      /* 🌤️ Weather Widget Styles */
-      .weather-widget {
-        background: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: var(--shadow);
-      }
-
-      .weather-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 0.5rem;
-      }
-
-      .weather-header h3 {
-        margin: 0;
-        color: var(--primary-color);
-        font-size: 1.2rem;
-      }
-
-      .weather-header small {
-        color: var(--text-secondary);
-        font-size: 0.8rem;
-      }
-
-      .weather-current {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1rem;
-      }
-
-      .weather-main {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .weather-temp {
-        font-size: 2rem;
-        font-weight: bold;
-        color: var(--accent-color);
-      }
-
-      .weather-condition {
-        color: var(--text-primary);
-        font-size: 1rem;
-      }
-
-      .weather-details {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-      }
-
-      .weather-forecast {
-        border-top: 1px solid var(--border-color);
-        padding-top: 1rem;
-      }
-
-      .weather-forecast h4 {
-        margin: 0 0 0.75rem 0;
-        font-size: 1rem;
-        color: var(--text-primary);
-      }
-
-      .forecast-list {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-      }
-
-      .forecast-item {
-        background: var(--bg-secondary);
-        padding: 0.75rem;
-        border-radius: 8px;
-        text-align: center;
-        font-size: 0.8rem;
-      }
-
-      .forecast-date {
-        font-weight: bold;
-        color: var(--text-primary);
-        margin-bottom: 0.25rem;
-      }
-
-      .forecast-condition {
-        color: var(--text-secondary);
-        margin-bottom: 0.25rem;
-      }
-
-      .forecast-temp {
-        color: var(--primary-color);
-        font-weight: bold;
-      }
-
-      /* 📈 Weight Chart Widget Styles */
-      .weight-widget {
-        background: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: var(--shadow);
-      }
-
-      .weight-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 0.5rem;
-      }
-
-      .weight-header h3 {
-        margin: 0;
-        color: var(--primary-color);
-        font-size: 1.2rem;
-      }
-
-      .weight-header small {
-        color: var(--text-secondary);
-        font-size: 0.8rem;
-      }
-
-      .weight-chart {
-        text-align: center;
-        margin-bottom: 1rem;
-      }
-
-      .weight-chart-img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: transform 0.3s ease;
-      }
-
-      .weight-chart-img:hover {
-        transform: scale(1.02);
-      }
-
-      .weight-chart-img.enlarged {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) scale(1.5);
-        z-index: 9999;
-        background: var(--bg-primary);
-        padding: 1rem;
-        border-radius: 10px;
-        box-shadow: 0 0 50px rgba(0,0,0,0.5);
-        cursor: zoom-out;
-      }
-
-      .weight-info {
-        background: var(--bg-secondary);
-        padding: 1rem;
-        border-radius: 8px;
-      }
-
-      .weight-note {
-        color: var(--text-secondary);
-        font-size: 0.85rem;
-        line-height: 1.4;
-      }
-
-      /* 🎛️ Dashboard Layout */
-      .dashboard-widgets {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        margin-bottom: 2rem;
-      }
-
-      /* 📱 Responsive adjustments */
-      @media (max-width: 768px) {
-        .weather-current {
-          grid-template-columns: 1fr;
-        }
-        
-        .forecast-list {
-          grid-template-columns: 1fr;
-        }
-        
-        .dashboard-widgets {
-          grid-template-columns: 1fr;
-          gap: 1rem;
-        }
-        
-        .weight-chart-img.enlarged {
-          transform: translate(-50%, -50%) scale(1.2);
-          width: 95vw;
-          height: auto;
-        }
-      }
-
-      /* 🔐 Authentication styles are already included in the auth system */
     </style>
 </head>
-<body>
-    <header class="header">
-        <div class="header-content">
-            <a href="#" class="logo">
-                <span class="logo-icon">📰</span>
-                <span>News Hub</span>
-            </a>
-            
-            <nav class="nav">
-                <a href="#" class="nav-item active" data-category="all">すべて</a>
-                <a href="#" class="nav-item" data-category="business">ビジネス</a>
-                <a href="#" class="nav-item" data-category="technology">テック</a>
-                <a href="#" class="nav-item" data-category="world">国際</a>
-                <a href="#" class="nav-item" data-category="sports">スポーツ</a>
-            </nav>
-            
-            <div class="controls">
-                <div class="search-box">
-                    <input type="text" class="search-input" placeholder="ニュースを検索..." id="searchInput">
-                    <button class="search-btn" id="searchBtn" aria-label="検索">🔍</button>
+<body data-theme="light">
+    <!-- Authentication Overlay (existing system) -->
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <span>📰</span>
+                    <span class="logo-text">News Hub Pro</span>
+                </a>
+                
+                <div class="header-controls">
+                    <button class="control-btn" id="refreshBtn" title="更新">🔄</button>
+                    <button class="control-btn" id="themeBtn" title="テーマ切り替え">🌙</button>
+                    <button class="control-btn" id="logoutBtn" title="ログアウト">🚪</button>
                 </div>
-                <button class="theme-toggle" id="themeToggle" aria-label="テーマ切り替え">🌙</button>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <main class="main">
-        <section class="category-filter" id="categoryFilter">
-            <!-- カテゴリーボタンはJavaScriptで生成 -->
-        </section>
-
-        <section class="news-grid" id="newsGrid">
-            <div class="loading">
-                <div class="spinner"></div>
-                <p>最新ニュースを読み込み中...</p>
-            </div>
-        </section>
-
-        <div class="status-message" id="statusMessage" style="display: none;">
-            <!-- ステータスメッセージ -->
-        </div>
-    </main>
-
-    <script>
-        // News Hub Application
-        class NewsHub {
-            constructor() {
-                this.currentCategory = 'all';
-                this.searchTerm = '';
-                this.newsData = [];
-                this.newsSources = []; // ニュースソースは後で設定
-                this.init();
-            }
-
-            init() {
-                this.setupEventListeners();
-                this.setupTheme();
-                this.showPlaceholderNews();
-            }
-
-            setupEventListeners() {
-                // Navigation
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        this.selectCategory(e.target.dataset.category);
-                    });
-                });
-
-                // Search
-                document.getElementById('searchBtn').addEventListener('click', () => {
-                    this.performSearch();
-                });
+        <!-- Main Dashboard -->
+        <main class="dashboard">
+            <!-- LEFT COLUMN - SHORT & FAST -->
+            <aside class="left-column">
+                <h2 class="column-header">Short & Fast</h2>
                 
-                document.getElementById('searchInput').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        this.performSearch();
-                    }
-                });
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">📈 TECH TRENDS</span>
+                        <span style="color: var(--accent-green);">●</span>
+                    </div>
+                    <div class="card-content" id="techTrends">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading...
+                        </div>
+                    </div>
+                </div>
 
-                // Theme toggle
-                document.getElementById('themeToggle').addEventListener('click', () => {
-                    this.toggleTheme();
-                });
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">🌍 BREAKING NEWS</span>
+                    </div>
+                    <div class="card-content" id="breakingNews">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading...
+                        </div>
+                    </div>
+                </div>
 
-                // Auto-refresh every 5 minutes
-                setInterval(() => {
-                    this.loadNews();
-                }, 30 * 60 * 1000);
-            }
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">💬 TRENDING</span>
+                    </div>
+                    <div class="card-content" id="trendingNews">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading...
+                        </div>
+                    </div>
+                </div>
+            </aside>
 
-            setupTheme() {
-                const savedTheme = localStorage.getItem('newsHubTheme');
-                const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            <!-- CENTER COLUMN - MAIN VISUAL -->
+            <section class="center-column">
+                <div class="main-story" id="mainStory">
+                    <div class="main-story-bg"></div>
+                    <div class="main-story-content">
+                        <span class="main-story-category">TOP STORIES</span>
+                        <h1 class="main-story-title">AI-SUMMARIZED: 3 MUST-READS TODAY</h1>
+                        <p class="main-story-summary">Loading latest stories...</p>
+                    </div>
+                </div>
+
+                <div class="secondary-stories" id="secondaryStories">
+                    <div class="secondary-story">
+                        <div class="secondary-story-source">BLOOMBERG</div>
+                        <h3 class="secondary-story-title">Global Economics Update</h3>
+                    </div>
+                    <div class="secondary-story">
+                        <div class="secondary-story-source">THE VERGE</div>
+                        <h3 class="secondary-story-title">Tech Innovation Report</h3>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN - MARKET & PERSONAL -->
+            <aside class="right-column">
+                <h2 class="column-header">Market & Personal</h2>
                 
-                if (savedTheme) {
-                    this.setTheme(savedTheme);
-                } else if (systemDark) {
-                    this.setTheme('dark');
-                }
-
-                // System theme change listener
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-                    if (!localStorage.getItem('newsHubTheme')) {
-                        this.setTheme(e.matches ? 'dark' : 'light');
-                    }
-                });
-            }
-
-            setTheme(theme) {
-                document.documentElement.setAttribute('data-theme', theme);
-                document.getElementById('themeToggle').innerHTML = theme === 'dark' ? '☀️' : '🌙';
-                localStorage.setItem('newsHubTheme', theme);
-            }
-
-            toggleTheme() {
-                const current = document.documentElement.getAttribute('data-theme');
-                this.setTheme(current === 'dark' ? 'light' : 'dark');
-            }
-
-            selectCategory(category) {
-                this.currentCategory = category;
-                
-                // Update nav active state
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    item.classList.toggle('active', item.dataset.category === category);
-                });
-
-                this.filterNews();
-            }
-
-            performSearch() {
-                this.searchTerm = document.getElementById('searchInput').value.toLowerCase();
-                this.filterNews();
-            }
-
-            filterNews() {
-                const filtered = this.newsData.filter(news => {
-                    const categoryMatch = this.currentCategory === 'all' || news.category === this.currentCategory;
-                    const searchMatch = !this.searchTerm || 
-                        news.title.toLowerCase().includes(this.searchTerm) ||
-                        news.summary.toLowerCase().includes(this.searchTerm);
-                    
-                    return categoryMatch && searchMatch;
-                });
-
-                this.renderNews(filtered);
-            }
-
-            async loadNews() {
-                // This method will be updated when news sources are provided
-                console.log('ニュース取得機能は設定待ちです');
-                this.showStatusMessage('ニュースソースの設定をお待ちください', 'info');
-            }
-
-            showPlaceholderNews() {
-                // Placeholder news data
-                const placeholderNews = [
-                    {
-                        title: 'ニュースソース設定待ち',
-                        summary: 'ニュースソースが設定されると、ここにリアルタイムニュースが表示されます。',
-                        category: 'info',
-                        source: 'News Hub',
-                        time: '準備中',
-                        url: '#',
-                        image: null
-                    },
-                    {
-                        title: '動的ニュース取得機能',
-                        summary: 'RSS/APIからニュースを自動取得して、カテゴリ別に表示する機能を搭載予定です。',
-                        category: 'technology',
-                        source: 'システム',
-                        time: '開発中',
-                        url: '#',
-                        image: null
-                    },
-                    {
-                        title: 'モダンニュースサイト',
-                        summary: 'レスポンシブデザイン、ダークモード、検索機能を備えたモダンなニュースサイトです。',
-                        category: 'business',
-                        source: 'News Hub',
-                        time: '実装済み',
-                        url: '#',
-                        image: null
-                    }
-                ];
-
-                this.newsData = placeholderNews;
-                this.renderNews(placeholderNews);
-            }
-
-            renderNews(newsArray) {
-                const grid = document.getElementById('newsGrid');
-                
-                if (newsArray.length === 0) {
-                    grid.innerHTML = '<div class="status-message">該当するニュースが見つかりませんでした。</div>';
-                    return;
-                }
-
-                grid.innerHTML = newsArray.map(news => `
-                    <article class="news-card">
-                        ${news.image ? 
-                            `<img src="${news.image}" alt="${news.title}" class="news-image">` :
-                            `<div class="news-image">📰</div>`
-                        }
-                        <div class="news-content">
-                            <span class="news-category">${this.getCategoryLabel(news.category)}</span>
-                            <h2 class="news-title">
-                                <a href="${news.url}" target="_blank" rel="noopener noreferrer">${news.title}</a>
-                            </h2>
-                            <p class="news-summary">${news.summary}</p>
-                            <div class="news-meta">
-                                <span class="news-source">${news.source}</span>
-                                <time class="news-time">${news.time}</time>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">💰 CRYPTO INDICES</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="metric-grid">
+                            <div class="metric-item">
+                                <div class="metric-value" style="color: var(--accent-orange);">9,999</div>
+                                <div class="metric-label">BTC/USD</div>
+                                <div class="metric-change metric-up">+2.45%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" style="color: var(--accent-purple);">6.9.98</div>
+                                <div class="metric-label">ETH/USD</div>
+                                <div class="metric-change metric-down">-1.23%</div>
                             </div>
                         </div>
-                    </article>
-                `).join('');
-            }
+                        <div class="chart-placeholder"></div>
+                    </div>
+                </div>
 
-            getCategoryLabel(category) {
-                const labels = {
-                    'all': 'すべて',
-                    'business': 'ビジネス',
-                    'technology': 'テクノロジー',
-                    'world': '国際',
-                    'sports': 'スポーツ',
-                    'entertainment': 'エンタメ',
-                    'info': '情報'
-                };
-                return labels[category] || category;
-            }
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">💱 FOREX</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="metric-grid">
+                            <div class="metric-item">
+                                <div class="metric-value">148.99</div>
+                                <div class="metric-label">USD/JPY</div>
+                                <div class="metric-change metric-up">+0.45%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">8.937</div>
+                                <div class="metric-label">EUR/JPY</div>
+                                <div class="metric-change metric-down">-0.12%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            showStatusMessage(message, type = 'info') {
-                const statusDiv = document.getElementById('statusMessage');
-                statusDiv.innerHTML = message;
-                statusDiv.className = `status-message ${type}-message`;
-                statusDiv.style.display = 'block';
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">📊 体重推移</span>
+                    </div>
+                    <div class="card-content">
+                        <img src="https://i.imgur.com/ZCaqkoK.png" 
+                             alt="体重推移グラフ" 
+                             class="weight-chart-small"
+                             onclick="this.style.transform = this.style.transform ? '' : 'scale(2)'">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">🌤️ WEATHER</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="weather-widget" id="weatherWidget">
+                            <div class="weather-temp">--°</div>
+                            <div class="weather-condition">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">📅 CALENDAR</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="calendar" id="calendar">
+                            <!-- Calendar will be generated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">✅ TO-DO LIST</span>
+                    </div>
+                    <div class="card-content" id="todoList">
+                        <div class="todo-item">
+                            <div class="todo-checkbox checked"></div>
+                            <span class="todo-text">Check latest news</span>
+                        </div>
+                        <div class="todo-item">
+                            <div class="todo-checkbox"></div>
+                            <span class="todo-text">Review market trends</span>
+                        </div>
+                        <div class="todo-item">
+                            <div class="todo-checkbox"></div>
+                            <span class="todo-text">Update dashboard</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- JavaScript will be added separately -->
+    <script>
+        // Placeholder for authentication and dashboard functionality
+        console.log('📰 News Hub Pro - Professional Dashboard Loaded');
+        
+        // Theme Toggle
+        document.getElementById('themeBtn').addEventListener('click', () => {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            document.getElementById('themeBtn').innerHTML = newTheme === 'dark' ? '☀️' : '🌙';
+            localStorage.setItem('newsHubTheme', newTheme);
+        });
+
+        // Initialize theme from localStorage
+        const savedTheme = localStorage.getItem('newsHubTheme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        document.getElementById('themeBtn').innerHTML = savedTheme === 'dark' ? '☀️' : '🌙';
+
+        // Generate Calendar
+        function generateCalendar() {
+            const calendar = document.getElementById('calendar');
+            const today = new Date();
+            const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).getDay();
+            
+            // Days header
+            ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-header';
+                dayHeader.textContent = day;
+                calendar.appendChild(dayHeader);
+            });
+            
+            // Empty cells for first week
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day';
+                calendar.appendChild(emptyDay);
+            }
+            
+            // Days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = day;
                 
-                setTimeout(() => {
-                    statusDiv.style.display = 'none';
-                }, 5000);
-            }
-
-            // Method to update news sources (will be called when sources are provided)
-            updateNewsSources(sources) {
-                this.newsSources = sources;
-                this.loadNews();
+                if (day === today.getDate()) {
+                    dayElement.classList.add('today');
+                }
+                
+                calendar.appendChild(dayElement);
             }
         }
-
-        // Initialize News Hub
-        const newsHub = new NewsHub();
         
-        // Global function for updating news sources
-        window.updateNewsSources = (sources) => {
-            newsHub.updateNewsSources(sources);
-        };
-
-        // Console message
-        console.log('📰 News Hub initialized. Waiting for news sources configuration.');
+        generateCalendar();
+        
+        // Refresh button placeholder
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            console.log('🔄 Refreshing dashboard...');
+        });
+        
+        // Logout button placeholder
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (confirm('ログアウトしますか？')) {
+                localStorage.removeItem('newsHubAuth');
+                location.reload();
+            }
+        });
     </script>
-
-        <script>
-        
-    // 📰 News Scraping System with Proxy
-    class NewsScrapingSystem {
-      constructor() {
-        this.proxyEndpoint = 'https://api.allorigins.win/get'; // CORS proxy
-        this.newsSources = [
-          {
-            name: 'Yahoo!ニュース',
-            url: 'https://news.yahoo.co.jp/',
-            category: 'general',
-            selector: '.newsFeed_item',
-            titleSelector: '.newsFeed_item_title',
-            linkSelector: 'a',
-            timeSelector: '.newsFeed_item_date'
-          },
-          {
-            name: 'ITmedia',
-            url: 'https://www.itmedia.co.jp/',
-            category: 'technology',
-            selector: '.colBoxBody li',
-            titleSelector: 'a',
-            linkSelector: 'a',
-            timeSelector: '.date'
-          },
-          {
-            name: 'CNET Japan',
-            url: 'https://japan.cnet.com/',
-            category: 'technology',
-            selector: '.latestList li',
-            titleSelector: '.latestList_link',
-            linkSelector: 'a',
-            timeSelector: '.latestList_date'
-          }
-        ];
-        this.cache = new Map();
-        this.cacheTimeout = 30 * 60 * 1000; // 5分
-      }
-
-      async fetchWithProxy(url) {
-        try {
-          const proxyUrl = `${this.proxyEndpoint}?url=${encodeURIComponent(url)}`;
-          const response = await fetch(proxyUrl);
-          
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          
-          const data = await response.json();
-          return data.contents;
-        } catch (error) {
-          console.error('Proxy fetch error:', error);
-          return null;
-        }
-      }
-
-      parseHTML(htmlString) {
-        const parser = new DOMParser();
-        return parser.parseFromString(htmlString, 'text/html');
-      }
-
-      extractNewsFromSource(source, doc) {
-        const articles = [];
-        
-        try {
-          const newsItems = doc.querySelectorAll(source.selector);
-          
-          newsItems.forEach((item, index) => {
-            if (index >= 10) return; // 最大10件まで
-            
-            const titleElement = item.querySelector(source.titleSelector);
-            const linkElement = item.querySelector(source.linkSelector);
-            const timeElement = item.querySelector(source.timeSelector);
-            
-            if (titleElement && linkElement) {
-              const title = titleElement.textContent.trim();
-              const link = linkElement.href || linkElement.getAttribute('href');
-              const time = timeElement ? timeElement.textContent.trim() : '時間不明';
-              
-              // 相対URLを絶対URLに変換
-              const absoluteLink = link.startsWith('http') ? 
-                link : 
-                new URL(link, source.url).href;
-              
-              articles.push({
-                title: title,
-                summary: this.generateSummary(title),
-                category: source.category,
-                source: source.name,
-                time: this.formatTime(time),
-                url: absoluteLink,
-                image: null
-              });
-            }
-          });
-        } catch (error) {
-          console.error(`Error extracting from ${source.name}:`, error);
-        }
-        
-        return articles;
-      }
-
-      generateSummary(title) {
-        // タイトルから簡易要約を生成
-        return title.length > 50 ? 
-          title.substring(0, 50) + '...' : 
-          title;
-      }
-
-      formatTime(timeString) {
-        // 時間表示を統一フォーマットに変換
-        const now = new Date();
-        
-        if (timeString.includes('分前')) {
-          const minutes = parseInt(timeString.match(/\d+/)?.[0] || '0');
-          return `${minutes}分前`;
-        } else if (timeString.includes('時間前')) {
-          const hours = parseInt(timeString.match(/\d+/)?.[0] || '0');
-          return `${hours}時間前`;
-        } else if (timeString.includes('日前')) {
-          const days = parseInt(timeString.match(/\d+/)?.[0] || '0');
-          return `${days}日前`;
-        } else if (timeString.match(/\d{1,2}:\d{2}/)) {
-          return timeString;
-        }
-        
-        return timeString || `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
-      }
-
-      async loadNewsFromSource(source) {
-        const cacheKey = source.name;
-        const cached = this.cache.get(cacheKey);
-        
-        // キャッシュチェック
-        if (cached && (Date.now() - cached.timestamp < this.cacheTimeout)) {
-          return cached.articles;
-        }
-        
-        console.log(`📰 Loading news from ${source.name}...`);
-        
-        const htmlContent = await this.fetchWithProxy(source.url);
-        if (!htmlContent) {
-          return [];
-        }
-        
-        const doc = this.parseHTML(htmlContent);
-        const articles = this.extractNewsFromSource(source, doc);
-        
-        // キャッシュに保存
-        this.cache.set(cacheKey, {
-          articles: articles,
-          timestamp: Date.now()
-        });
-        
-        return articles;
-      }
-
-      async loadAllNews() {
-        console.log('🔄 Loading news from all sources...');
-        
-        const allArticles = [];
-        const promises = this.newsSources.map(source => this.loadNewsFromSource(source));
-        
-        try {
-          const results = await Promise.allSettled(promises);
-          
-          results.forEach((result, index) => {
-            if (result.status === 'fulfilled') {
-              allArticles.push(...result.value);
-            } else {
-              console.error(`Failed to load from ${this.newsSources[index].name}:`, result.reason);
-            }
-          });
-          
-          // 重複除去とソート
-          const uniqueArticles = this.removeDuplicates(allArticles);
-          const sortedArticles = this.sortByTime(uniqueArticles);
-          
-          console.log(`✅ Loaded ${sortedArticles.length} articles from ${this.newsSources.length} sources`);
-          return sortedArticles;
-          
-        } catch (error) {
-          console.error('Error loading news:', error);
-          return [];
-        }
-      }
-
-      removeDuplicates(articles) {
-        const seen = new Set();
-        return articles.filter(article => {
-          const key = article.title + article.source;
-          if (seen.has(key)) {
-            return false;
-          }
-          seen.add(key);
-          return true;
-        });
-      }
-
-      sortByTime(articles) {
-        return articles.sort((a, b) => {
-          // 簡易的な時間ソート（実際の時刻解析は複雑）
-          if (a.time.includes('分前') && b.time.includes('分前')) {
-            const aMinutes = parseInt(a.time.match(/\d+/)?.[0] || '0');
-            const bMinutes = parseInt(b.time.match(/\d+/)?.[0] || '0');
-            return aMinutes - bMinutes;
-          }
-          return 0; // その他は元の順序を維持
-        });
-      }
-
-      // 日経新聞専用の特別メソッド（注意事項付き）
-      async loadNikkeiNews() {
-        console.warn('⚠️  Nikkei scraping: Please ensure compliance with terms of service');
-        
-        const nikkeiSource = {
-          name: '日本経済新聞',
-          url: 'https://www.nikkei.com/',
-          category: 'business',
-          selector: '.m-miM09_item, .m-miM09-listWrap_item',
-          titleSelector: '.m-miM09_titleText, .m-miM09-listWrap_title',
-          linkSelector: 'a',
-          timeSelector: '.m-miM09_date, .m-miM09-listWrap_date'
-        };
-        
-        return await this.loadNewsFromSource(nikkeiSource);
-      }
-    }
-
-    // News Hubに統合
-    if (typeof window !== 'undefined' && window.newsHub) {
-      window.newsHub.scrapingSystem = new NewsScrapingSystem();
-      
-      // 既存のloadNews methodを置き換え
-      window.newsHub.loadNews = async function() {
-        const articles = await this.scrapingSystem.loadAllNews();
-        this.newsData = articles;
-        this.filterNews();
-        
-        if (articles.length > 0) {
-          this.showStatusMessage(`📰 ${articles.length}件のニュースを取得しました`, 'success');
-        } else {
-          this.showStatusMessage('ニュースの取得に失敗しました', 'error');
-        }
-      };
-      
-      // 日経ニュース専用メソッド追加
-      window.newsHub.loadNikkeiNews = async function() {
-        const articles = await this.scrapingSystem.loadNikkeiNews();
-        this.newsData = [...this.newsData, ...articles];
-        this.filterNews();
-        
-        this.showStatusMessage(`📊 日経ニュース ${articles.length}件を追加しました`, 'success');
-      };
-      
-      // 自動読み込み開始
-      setTimeout(() => {
-        window.newsHub.loadNews();
-      }, 1000);
-      
-      console.log('🔄 News scraping system integrated successfully');
-    }
-    
-        </script>
-        
-        <script>
-        
-    // 🌐 Alternative News API Sources (Legal & Free)
-    class NewsAPISystem {
-      constructor() {
-        this.apiSources = [
-          {
-            name: 'NewsAPI (Free)',
-            url: 'https://newsapi.org/v2/top-headlines',
-            params: {
-              country: 'jp',
-              apiKey: '37bec8593888416299df95ed455407f8', // 無料登録で取得
-              pageSize: 10
-            },
-            category: 'general'
-          },
-          {
-            name: 'Guardian API',
-            url: 'https://content.guardianapis.com/search',
-            params: {
-              'api-key': 'test', // testキーでも利用可能
-              'show-fields': 'headline,thumbnail,short-url',
-              pageSize: 10
-            },
-            category: 'international'
-          },
-          {
-            name: 'Reddit API (Tech News)',
-            url: 'https://www.reddit.com/r/technology/.json',
-            params: {
-              limit: 10
-            },
-            category: 'technology'
-          }
-        ];
-      }
-
-      async loadFromAPI(source) {
-        try {
-          const url = new URL(source.url);
-          Object.entries(source.params).forEach(([key, value]) => {
-            url.searchParams.set(key, value);
-          });
-
-          const response = await fetch(url.toString());
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const data = await response.json();
-          return this.parseAPIResponse(data, source);
-        } catch (error) {
-          console.error(`Error loading from ${source.name}:`, error);
-          return [];
-        }
-      }
-
-      parseAPIResponse(data, source) {
-        const articles = [];
-        
-        try {
-          if (source.name === 'NewsAPI (Free)' && data.articles) {
-            data.articles.forEach(article => {
-              articles.push({
-                title: article.title,
-                summary: article.description || article.title,
-                category: source.category,
-                source: article.source.name,
-                time: this.formatAPITime(article.publishedAt),
-                url: article.url,
-                image: article.urlToImage
-              });
-            });
-          } else if (source.name === 'Guardian API' && data.response?.results) {
-            data.response.results.forEach(article => {
-              articles.push({
-                title: article.webTitle,
-                summary: article.fields?.headline || article.webTitle,
-                category: source.category,
-                source: 'The Guardian',
-                time: this.formatAPITime(article.webPublicationDate),
-                url: article.webUrl,
-                image: article.fields?.thumbnail
-              });
-            });
-          } else if (source.name.includes('Reddit') && data.data?.children) {
-            data.data.children.forEach(post => {
-              const postData = post.data;
-              articles.push({
-                title: postData.title,
-                summary: postData.selftext?.substring(0, 100) + '...' || postData.title,
-                category: source.category,
-                source: 'Reddit',
-                time: this.formatAPITime(new Date(postData.created_utc * 1000).toISOString()),
-                url: `https://reddit.com${postData.permalink}`,
-                image: postData.thumbnail !== 'self' ? postData.thumbnail : null
-              });
-            });
-          }
-        } catch (error) {
-          console.error('Error parsing API response:', error);
-        }
-        
-        return articles;
-      }
-
-      formatAPITime(timeString) {
-        try {
-          const date = new Date(timeString);
-          const now = new Date();
-          const diffMs = now - date;
-          const diffMins = Math.floor(diffMs / 60000);
-          const diffHours = Math.floor(diffMs / 3600000);
-          const diffDays = Math.floor(diffMs / 86400000);
-          
-          if (diffMins < 60) {
-            return `${diffMins}分前`;
-          } else if (diffHours < 24) {
-            return `${diffHours}時間前`;
-          } else {
-            return `${diffDays}日前`;
-          }
-        } catch (error) {
-          return '時間不明';
-        }
-      }
-
-      async loadAllAPINews() {
-        const allArticles = [];
-        const promises = this.apiSources.map(source => this.loadFromAPI(source));
-        
-        try {
-          const results = await Promise.allSettled(promises);
-          
-          results.forEach((result, index) => {
-            if (result.status === 'fulfilled') {
-              allArticles.push(...result.value);
-            } else {
-              console.error(`Failed to load from API ${this.apiSources[index].name}:`, result.reason);
-            }
-          });
-          
-          return allArticles;
-        } catch (error) {
-          console.error('Error loading API news:', error);
-          return [];
-        }
-      }
-    }
-
-    // 使用方法の説明
-    console.log(`
-📰 News API Integration Guide:
-
-1. NewsAPI.org (無料):
-   - サインアップ: https://newsapi.org/
-   - 無料プランで1000リクエスト/日
-   - 日本のニュース取得可能
-
-2. Guardian API (無料):
-   - 国際ニュース（英語）
-   - API Key不要でテスト可能
-
-3. Reddit API (無料):
-   - テクノロジー系ニュース
-   - 認証不要
-
-推奨: NewsAPI.orgで無料API Keyを取得
-`);
-    
-        </script>
-        
-        <script>
-        
-    // 🔑 NewsAPI Integration with Real API Key
-    class NewsAPIIntegration {
-      constructor() {
-        this.apiKey = '37bec8593888416299df95ed455407f8';
-        this.baseUrl = 'https://newsapi.org/v2';
-        this.proxyUrl = 'https://api.allorigins.win/get';
-        this.cache = new Map();
-        this.cacheTimeout = 10 * 60 * 1000; // 10分キャッシュ
-      }
-
-      async fetchWithCORS(url) {
-        try {
-          const proxyUrl = `${this.proxyUrl}?url=${encodeURIComponent(url)}`;
-          const response = await fetch(proxyUrl);
-          
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          
-          const data = await response.json();
-          return JSON.parse(data.contents);
-        } catch (error) {
-          console.error('NewsAPI fetch error:', error);
-          return null;
-        }
-      }
-
-      async getTopHeadlines(category = null, country = 'jp') {
-        const cacheKey = `headlines-${category || 'general'}-${country}`;
-        const cached = this.cache.get(cacheKey);
-        
-        if (cached && (Date.now() - cached.timestamp < this.cacheTimeout)) {
-          return cached.articles;
-        }
-
-        console.log(`📰 Fetching ${category ? category + ' ' : ''}headlines from NewsAPI...`);
-
-        const url = new URL(`${this.baseUrl}/top-headlines`);
-        url.searchParams.set('apiKey', this.apiKey);
-        url.searchParams.set('country', country);
-        url.searchParams.set('pageSize', '20');
-        
-        if (category && category !== 'general') {
-          url.searchParams.set('category', category);
-        }
-
-        try {
-          const data = await this.fetchWithCORS(url.toString());
-          
-          if (!data || data.status !== 'ok') {
-            console.error('NewsAPI error:', data?.message || 'Unknown error');
-            return [];
-          }
-
-          const articles = this.parseNewsAPIResponse(data, category || 'general');
-          
-          // キャッシュに保存
-          this.cache.set(cacheKey, {
-            articles: articles,
-            timestamp: Date.now()
-          });
-
-          return articles;
-        } catch (error) {
-          console.error('Error fetching headlines:', error);
-          return [];
-        }
-      }
-
-      async getEverything(query, language = 'jp') {
-        const cacheKey = `everything-${query}-${language}`;
-        const cached = this.cache.get(cacheKey);
-        
-        if (cached && (Date.now() - cached.timestamp < this.cacheTimeout)) {
-          return cached.articles;
-        }
-
-        console.log(`🔍 Searching NewsAPI for: ${query}`);
-
-        const url = new URL(`${this.baseUrl}/everything`);
-        url.searchParams.set('apiKey', this.apiKey);
-        url.searchParams.set('q', query);
-        url.searchParams.set('language', language);
-        url.searchParams.set('sortBy', 'publishedAt');
-        url.searchParams.set('pageSize', '15');
-
-        try {
-          const data = await this.fetchWithCORS(url.toString());
-          
-          if (!data || data.status !== 'ok') {
-            console.error('NewsAPI search error:', data?.message || 'Unknown error');
-            return [];
-          }
-
-          const articles = this.parseNewsAPIResponse(data, 'search');
-          
-          // キャッシュに保存
-          this.cache.set(cacheKey, {
-            articles: articles,
-            timestamp: Date.now()
-          });
-
-          return articles;
-        } catch (error) {
-          console.error('Error searching news:', error);
-          return [];
-        }
-      }
-
-      parseNewsAPIResponse(data, category) {
-        const articles = [];
-        
-        if (data.articles && Array.isArray(data.articles)) {
-          data.articles.forEach(article => {
-            // 無効な記事をフィルター
-            if (!article.title || article.title === '[Removed]' || 
-                !article.url || article.url.includes('removed.com')) {
-              return;
-            }
-
-            articles.push({
-              title: this.cleanTitle(article.title),
-              summary: this.cleanSummary(article.description || article.title),
-              category: this.mapCategory(category),
-              source: this.cleanSourceName(article.source?.name || 'NewsAPI'),
-              time: this.formatTime(article.publishedAt),
-              url: article.url,
-              image: article.urlToImage && article.urlToImage !== 'null' ? article.urlToImage : null,
-              author: article.author
-            });
-          });
-        }
-
-        return articles;
-      }
-
-      cleanTitle(title) {
-        if (!title) return 'タイトル不明';
-        return title.replace(/\s+/g, ' ').trim().substring(0, 100);
-      }
-
-      cleanSummary(description) {
-        if (!description) return '';
-        return description.replace(/\s+/g, ' ').trim().substring(0, 150) + 
-               (description.length > 150 ? '...' : '');
-      }
-
-      cleanSourceName(sourceName) {
-        if (!sourceName) return 'Unknown';
-        return sourceName.replace(/\.com$/, '').trim();
-      }
-
-      mapCategory(apiCategory) {
-        const categoryMap = {
-          'general': 'general',
-          'business': 'business',
-          'technology': 'technology',
-          'science': 'technology',
-          'health': 'health',
-          'sports': 'sports',
-          'entertainment': 'entertainment',
-          'search': 'general'
-        };
-        
-        return categoryMap[apiCategory] || 'general';
-      }
-
-      formatTime(publishedAt) {
-        try {
-          const date = new Date(publishedAt);
-          const now = new Date();
-          const diffMs = now - date;
-          const diffMins = Math.floor(diffMs / 60000);
-          const diffHours = Math.floor(diffMs / 3600000);
-          const diffDays = Math.floor(diffMs / 86400000);
-          
-          if (diffMins < 1) {
-            return 'たった今';
-          } else if (diffMins < 60) {
-            return `${diffMins}分前`;
-          } else if (diffHours < 24) {
-            return `${diffHours}時間前`;
-          } else if (diffDays < 7) {
-            return `${diffDays}日前`;
-          } else {
-            return date.toLocaleDateString('ja-JP', {
-              month: 'short',
-              day: 'numeric'
-            });
-          }
-        } catch (error) {
-          return '時間不明';
-        }
-      }
-
-      async loadAllCategories() {
-        console.log('📊 Loading news from all NewsAPI categories...');
-        
-        const categories = ['general', 'business', 'technology', 'sports', 'health'];
-        const promises = categories.map(cat => this.getTopHeadlines(cat));
-        
-        try {
-          const results = await Promise.allSettled(promises);
-          const allArticles = [];
-          
-          results.forEach((result, index) => {
-            if (result.status === 'fulfilled') {
-              allArticles.push(...result.value);
-              console.log(`✅ ${categories[index]}: ${result.value.length} articles`);
-            } else {
-              console.error(`❌ ${categories[index]} failed:`, result.reason);
-            }
-          });
-          
-          // 重複除去
-          const uniqueArticles = this.removeDuplicates(allArticles);
-          console.log(`📰 Total unique articles: ${uniqueArticles.length}`);
-          
-          return uniqueArticles;
-        } catch (error) {
-          console.error('Error loading all categories:', error);
-          return [];
-        }
-      }
-
-      removeDuplicates(articles) {
-        const seen = new Set();
-        return articles.filter(article => {
-          const key = article.title + article.source;
-          if (seen.has(key)) {
-            return false;
-          }
-          seen.add(key);
-          return true;
-        });
-      }
-
-      // APIステータス確認
-      async checkAPIStatus() {
-        try {
-          const url = `${this.baseUrl}/top-headlines?country=us&pageSize=1&apiKey=${this.apiKey}`;
-          const data = await this.fetchWithCORS(url);
-          
-          if (data && data.status === 'ok') {
-            console.log('✅ NewsAPI connection successful');
-            return true;
-          } else {
-            console.error('❌ NewsAPI connection failed:', data?.message);
-            return false;
-          }
-        } catch (error) {
-          console.error('❌ NewsAPI status check error:', error);
-          return false;
-        }
-      }
-    }
-
-    // News Hubに統合
-    if (typeof window !== 'undefined' && window.newsHub) {
-      window.newsHub.newsAPI = new NewsAPIIntegration();
-      
-      // 既存のloadNews methodを拡張
-      const originalLoadNews = window.newsHub.loadNews;
-      
-      window.newsHub.loadNews = async function() {
-        try {
-          console.log('🚀 Loading news from enhanced sources...');
-          this.showStatusMessage('📰 最新ニュースを取得中...', 'info');
-          
-          // NewsAPIからニュース取得
-          const newsAPIArticles = await this.newsAPI.loadAllCategories();
-          
-          // 既存のスクレイピング結果と統合
-          let scrapingArticles = [];
-          if (this.scrapingSystem) {
-            scrapingArticles = await this.scrapingSystem.loadAllNews();
-          }
-          
-          // 結果を統合
-          const allArticles = [...newsAPIArticles, ...scrapingArticles];
-          const uniqueArticles = this.removeDuplicatesByTitle(allArticles);
-          
-          this.newsData = uniqueArticles;
-          this.filterNews();
-          
-          if (uniqueArticles.length > 0) {
-            this.showStatusMessage(
-              `📰 ${uniqueArticles.length}件のニュースを取得しました (NewsAPI: ${newsAPIArticles.length}件, スクレイピング: ${scrapingArticles.length}件)`, 
-              'success'
-            );
-          } else {
-            this.showStatusMessage('ニュースの取得に失敗しました', 'error');
-          }
-        } catch (error) {
-          console.error('Error loading news:', error);
-          this.showStatusMessage('ニュース取得中にエラーが発生しました', 'error');
-        }
-      };
-      
-      // 重複除去メソッド追加
-      window.newsHub.removeDuplicatesByTitle = function(articles) {
-        const seen = new Set();
-        return articles.filter(article => {
-          const key = article.title.toLowerCase().replace(/[^a-z0-9]/g, '');
-          if (seen.has(key)) {
-            return false;
-          }
-          seen.add(key);
-          return true;
-        });
-      };
-      
-      // NewsAPI検索機能追加
-      window.newsHub.searchNewsAPI = async function(query) {
-        if (!query) return;
-        
-        console.log(`🔍 Searching NewsAPI for: ${query}`);
-        this.showStatusMessage(`🔍 "${query}" を検索中...`, 'info');
-        
-        const searchResults = await this.newsAPI.getEverything(query);
-        
-        if (searchResults.length > 0) {
-          this.newsData = [...this.newsData, ...searchResults];
-          this.filterNews();
-          this.showStatusMessage(`🔍 "${query}" の検索結果: ${searchResults.length}件`, 'success');
-        } else {
-          this.showStatusMessage(`🔍 "${query}" の検索結果は見つかりませんでした`, 'info');
-        }
-      };
-      
-      // APIステータスチェック
-      setTimeout(async () => {
-        const status = await window.newsHub.newsAPI.checkAPIStatus();
-        if (status) {
-          console.log('🔑 NewsAPI Key verified and working');
-        }
-      }, 500);
-      
-      console.log('🔑 NewsAPI integration completed successfully');
-      console.log('📊 Available categories: general, business, technology, sports, health');
-    }
-    
-        </script>
-        
-        <script>
-        
-    // 🔐 Basic Authentication System
-    class BasicAuthSystem {
-      constructor() {
-        this.authenticated = false;
-        this.credentials = {
-          username: 'hisao',
-          password: 'newshub2026'  // セキュアなパスワードに変更可能
-        };
-        this.sessionTimeout = 4 * 60 * 60 * 1000; // 4時間
-        this.init();
-      }
-
-      init() {
-        this.checkAuthStatus();
-        this.setupAuthUI();
-      }
-
-      checkAuthStatus() {
-        const authData = localStorage.getItem('newsHubAuth');
-        if (authData) {
-          try {
-            const parsed = JSON.parse(authData);
-            const now = Date.now();
-            
-            if (now - parsed.timestamp < this.sessionTimeout) {
-              this.authenticated = true;
-              this.showMainContent();
-              return;
-            } else {
-              localStorage.removeItem('newsHubAuth');
-            }
-          } catch (error) {
-            localStorage.removeItem('newsHubAuth');
-          }
-        }
-        
-        this.showAuthForm();
-      }
-
-      setupAuthUI() {
-        // 認証フォームのスタイルを追加
-        const authStyles = `
-        <style>
-          .auth-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-          }
-          
-          .auth-form {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-          }
-          
-          .auth-title {
-            margin-bottom: 1.5rem;
-            color: #333;
-            font-size: 1.5rem;
-          }
-          
-          .auth-input {
-            width: 100%;
-            padding: 0.75rem;
-            margin: 0.5rem 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-          }
-          
-          .auth-button {
-            width: 100%;
-            padding: 0.75rem;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 1rem;
-          }
-          
-          .auth-button:hover {
-            background: #5a6fd8;
-          }
-          
-          .auth-error {
-            color: #e74c3c;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-          }
-          
-          .main-content.hidden {
-            display: none;
-          }
-        </style>
-        `;
-        
-        document.head.insertAdjacentHTML('beforeend', authStyles);
-      }
-
-      showAuthForm() {
-        const authHTML = `
-        <div class="auth-overlay" id="authOverlay">
-          <div class="auth-form">
-            <div class="auth-title">
-              🔐 News Hub Access
-            </div>
-            <input type="text" id="authUsername" class="auth-input" placeholder="ユーザー名" autocomplete="username">
-            <input type="password" id="authPassword" class="auth-input" placeholder="パスワード" autocomplete="current-password">
-            <button class="auth-button" onclick="authSystem.authenticate()">ログイン</button>
-            <div id="authError" class="auth-error"></div>
-          </div>
-        </div>
-        `;
-        
-        document.body.insertAdjacentHTML('afterbegin', authHTML);
-        
-        // メインコンテンツを隠す
-        const mainContent = document.querySelector('.header');
-        if (mainContent) {
-          mainContent.classList.add('hidden');
-        }
-        const mainContainer = document.querySelector('.main');
-        if (mainContainer) {
-          mainContainer.classList.add('hidden');
-        }
-
-        // Enter キーでログイン
-        document.getElementById('authPassword').addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') {
-            this.authenticate();
-          }
-        });
-        
-        // フォーカス設定
-        setTimeout(() => {
-          document.getElementById('authUsername').focus();
-        }, 100);
-      }
-
-      authenticate() {
-        const username = document.getElementById('authUsername').value;
-        const password = document.getElementById('authPassword').value;
-        const errorEl = document.getElementById('authError');
-        
-        if (username === this.credentials.username && password === this.credentials.password) {
-          // 認証成功
-          this.authenticated = true;
-          
-          // セッション情報保存
-          const authData = {
-            timestamp: Date.now(),
-            user: username
-          };
-          localStorage.setItem('newsHubAuth', JSON.stringify(authData));
-          
-          this.showMainContent();
-        } else {
-          // 認証失敗
-          errorEl.textContent = 'ユーザー名またはパスワードが間違っています';
-          
-          // パスワード欄をクリア
-          document.getElementById('authPassword').value = '';
-          document.getElementById('authPassword').focus();
-        }
-      }
-
-      showMainContent() {
-        // 認証オーバーレイを削除
-        const overlay = document.getElementById('authOverlay');
-        if (overlay) {
-          overlay.remove();
-        }
-        
-        // メインコンテンツを表示
-        const elements = document.querySelectorAll('.hidden');
-        elements.forEach(el => el.classList.remove('hidden'));
-        
-        console.log('🔐 User authenticated successfully');
-      }
-
-      logout() {
-        localStorage.removeItem('newsHubAuth');
-        location.reload();
-      }
-
-      isAuthenticated() {
-        return this.authenticated;
-      }
-    }
-
-    // グローバルに認証システムを設定
-    const authSystem = new BasicAuthSystem();
-    window.authSystem = authSystem;
-    
-        </script>
-        
-        <script>
-        
-    // 🌤️ Weather Information System
-    class WeatherSystem {
-      constructor() {
-        this.cache = null;
-        this.cacheTimeout = 30 * 60 * 1000; // 30分キャッシュ
-        this.location = 'Tokyo';
-      }
-
-      async getCurrentWeather() {
-        // キャッシュチェック
-        if (this.cache && (Date.now() - this.cache.timestamp < this.cacheTimeout)) {
-          return this.cache.data;
-        }
-
-        console.log('🌤️ Fetching weather data...');
-
-        try {
-          // wttr.inから天気データを取得
-          const proxyUrl = 'https://api.allorigins.win/get';
-          const weatherUrl = `https://wttr.in/${this.location}?format=j1`;
-          const fullUrl = `${proxyUrl}?url=${encodeURIComponent(weatherUrl)}`;
-          
-          const response = await fetch(fullUrl);
-          if (!response.ok) {
-            throw new Error(`Weather API error: ${response.status}`);
-          }
-          
-          const data = await response.json();
-          const weatherData = JSON.parse(data.contents);
-          
-          const current = weatherData.current_condition[0];
-          const forecast = weatherData.weather;
-          
-          const weatherInfo = {
-            current: {
-              temp: current.temp_C + '°C',
-              condition: this.getWeatherEmoji(current.weatherCode) + ' ' + current.weatherDesc[0].value,
-              humidity: current.humidity + '%',
-              windSpeed: current.windspeedKmph + 'km/h',
-              windDir: current.winddir16Point,
-              feelsLike: current.FeelsLikeC + '°C'
-            },
-            forecast: forecast.slice(0, 3).map(day => ({
-              date: new Date(day.date).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }),
-              maxTemp: day.maxtempC + '°C',
-              minTemp: day.mintempC + '°C',
-              condition: this.getWeatherEmoji(day.hourly[4].weatherCode) + ' ' + day.hourly[4].weatherDesc[0].value
-            }))
-          };
-          
-          // キャッシュに保存
-          this.cache = {
-            data: weatherInfo,
-            timestamp: Date.now()
-          };
-          
-          return weatherInfo;
-        } catch (error) {
-          console.error('Weather fetch error:', error);
-          
-          // フォールバック データ
-          return {
-            current: {
-              temp: '--°C',
-              condition: '🌤️ 情報取得中...',
-              humidity: '--%',
-              windSpeed: '--km/h',
-              windDir: '--',
-              feelsLike: '--°C'
-            },
-            forecast: []
-          };
-        }
-      }
-
-      getWeatherEmoji(weatherCode) {
-        const code = parseInt(weatherCode);
-        
-        if (code === 113) return '☀️'; // Sunny
-        if (code === 116) return '🌤️'; // Partly cloudy
-        if (code === 119 || code === 122) return '☁️'; // Cloudy
-        if (code === 143 || code === 248) return '🌫️'; // Fog
-        if (code >= 176 && code <= 200) return '🌧️'; // Rain
-        if (code >= 227 && code <= 230) return '🌨️'; // Snow
-        if (code >= 200 && code <= 230) return '⛈️'; // Thunder
-        if (code >= 260 && code <= 284) return '🌧️'; // Light rain
-        if (code >= 293 && code <= 299) return '🌦️'; // Light rain shower
-        if (code >= 302 && code <= 359) return '🌧️'; // Heavy rain
-        if (code >= 362 && code <= 374) return '🌨️'; // Snow
-        if (code >= 377 && code <= 395) return '❄️'; // Heavy snow
-        
-        return '🌤️'; // Default
-      }
-
-      renderWeatherWidget(weatherData) {
-        const current = weatherData.current;
-        const forecast = weatherData.forecast;
-        
-        return `
-        <div class="weather-widget">
-          <div class="weather-header">
-            <h3>🌤️ 東京の天気</h3>
-            <small>最終更新: ${new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</small>
-          </div>
-          
-          <div class="weather-current">
-            <div class="weather-main">
-              <span class="weather-temp">${current.temp}</span>
-              <span class="weather-condition">${current.condition}</span>
-            </div>
-            <div class="weather-details">
-              <div>💧 湿度: ${current.humidity}</div>
-              <div>💨 風速: ${current.windSpeed} ${current.windDir}</div>
-              <div>🌡️ 体感: ${current.feelsLike}</div>
-            </div>
-          </div>
-          
-          ${forecast.length > 0 ? `
-          <div class="weather-forecast">
-            <h4>📅 3日間予報</h4>
-            <div class="forecast-list">
-              ${forecast.map(day => `
-                <div class="forecast-item">
-                  <div class="forecast-date">${day.date}</div>
-                  <div class="forecast-condition">${day.condition}</div>
-                  <div class="forecast-temp">${day.maxTemp}/${day.minTemp}</div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-          ` : ''}
-        </div>
-        `;
-      }
-    }
-
-    // 天気システムをNews Hubに統合
-    if (typeof window !== 'undefined') {
-      window.weatherSystem = new WeatherSystem();
-    }
-    
-        </script>
-        
-        <script>
-        
-    // 📈 Weight Chart Integration System  
-    class WeightChartSystem {
-      constructor() {
-        this.chartImageUrl = 'https://i.imgur.com/ZCaqkoK.png'; // 既存のimgur URL
-      }
-
-      renderWeightWidget() {
-        return `
-        <div class="weight-widget">
-          <div class="weight-header">
-            <h3>📈 体重推移グラフ</h3>
-            <small>データソース: Withings</small>
-          </div>
-          
-          <div class="weight-chart">
-            <img src="${this.chartImageUrl}" 
-                 alt="体重推移グラフ" 
-                 class="weight-chart-img"
-                 onclick="this.classList.toggle('enlarged')"
-                 title="クリックで拡大">
-          </div>
-          
-          <div class="weight-info">
-            <div class="weight-note">
-              💡 グラフをクリックすると拡大表示されます<br>
-              📊 毎週金曜日9時に自動更新されます
-            </div>
-          </div>
-        </div>
-        `;
-      }
-    }
-
-    // 体重チャートシステムをNews Hubに統合
-    if (typeof window !== 'undefined') {
-      window.weightChartSystem = new WeightChartSystem();
-    }
-    
-        </script>
-        
-        <script>
-        
-    // 📊 Enhanced News Hub with Dashboard
-    class EnhancedNewsHub extends NewsHub {
-      constructor() {
-        super();
-        this.updateInterval = 30 * 60 * 1000; // 30分に変更
-        this.setupDashboard();
-      }
-
-      async setupDashboard() {
-        // 認証チェック
-        if (!window.authSystem || !window.authSystem.isAuthenticated()) {
-          return;
-        }
-
-        console.log('📊 Setting up enhanced dashboard...');
-        
-        // ダッシュボードウィジェット用のコンテナを追加
-        const main = document.querySelector('.main');
-        if (main) {
-          const dashboardHTML = `
-          <section class="dashboard-widgets" id="dashboardWidgets">
-            <!-- 天気予報ウィジェット -->
-            <div id="weatherWidget">
-              <div class="loading">
-                <div class="spinner"></div>
-                <p>天気情報を読み込み中...</p>
-              </div>
-            </div>
-            
-            <!-- 体重チャートウィジェット -->
-            <div id="weightWidget">
-              ${window.weightChartSystem ? window.weightChartSystem.renderWeightWidget() : ''}
-            </div>
-          </section>
-          `;
-          
-          main.insertAdjacentHTML('afterbegin', dashboardHTML);
-        }
-
-        // ウィジェットを初期化
-        await this.loadDashboardData();
-      }
-
-      async loadDashboardData() {
-        // 天気予報を読み込み
-        if (window.weatherSystem) {
-          try {
-            const weatherData = await window.weatherSystem.getCurrentWeather();
-            const weatherWidget = document.getElementById('weatherWidget');
-            if (weatherWidget) {
-              weatherWidget.innerHTML = window.weatherSystem.renderWeatherWidget(weatherData);
-            }
-          } catch (error) {
-            console.error('Weather loading error:', error);
-          }
-        }
-
-        // ニュースも並行して読み込み
-        this.loadNews();
-      }
-
-      // オーバーライド: 自動更新間隔を30分に変更
-      init() {
-        super.init();
-        
-        // 既存の5分間隔を停止して30分間隔に変更
-        clearInterval(this.autoRefreshTimer);
-        
-        this.autoRefreshTimer = setInterval(() => {
-          console.log('⏰ Auto-refreshing news and dashboard (30 min interval)...');
-          this.loadDashboardData();
-        }, this.updateInterval);
-      }
-
-      // ダッシュボード手動更新
-      async refreshDashboard() {
-        console.log('🔄 Manually refreshing dashboard...');
-        this.showStatusMessage('🔄 ダッシュボードを更新中...', 'info');
-        
-        await this.loadDashboardData();
-        
-        this.showStatusMessage('✅ ダッシュボードが更新されました', 'success');
-      }
-    }
-
-    // 認証後にEnhanced News Hubを初期化
-    const originalShowMainContent = window.authSystem.showMainContent;
-    window.authSystem.showMainContent = function() {
-      originalShowMainContent.call(this);
-      
-      // 認証成功後にEnhanced News Hubを初期化
-      setTimeout(() => {
-        if (window.newsHub) {
-          // 既存のnewsHubをEnhancedNewsHubで置き換え
-          window.newsHub = new EnhancedNewsHub();
-          console.log('🚀 Enhanced News Hub initialized');
-        }
-      }, 1000);
-    };
-
-    // 手動更新ボタンをヘッダーに追加
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        const controls = document.querySelector('.controls');
-        if (controls && window.authSystem && window.authSystem.isAuthenticated()) {
-          const refreshBtn = document.createElement('button');
-          refreshBtn.className = 'theme-toggle';
-          refreshBtn.innerHTML = '🔄';
-          refreshBtn.title = 'ダッシュボード更新';
-          refreshBtn.onclick = () => {
-            if (window.newsHub && window.newsHub.refreshDashboard) {
-              window.newsHub.refreshDashboard();
-            }
-          };
-          
-          const logoutBtn = document.createElement('button');
-          logoutBtn.className = 'theme-toggle';
-          logoutBtn.innerHTML = '🚪';
-          logoutBtn.title = 'ログアウト';
-          logoutBtn.style.marginLeft = '0.5rem';
-          logoutBtn.onclick = () => window.authSystem.logout();
-          
-          controls.appendChild(refreshBtn);
-          controls.appendChild(logoutBtn);
-        }
-      }, 2000);
-    });
-
-    console.log('🎛️ Enhanced News Hub system loaded');
-    
-        </script>
-        
-        <!-- 🔧 Fixed News Integration System -->
-        <script>
-        
-    // 🔧 Fixed News Integration System
-    class FixedNewsSystem {
-      constructor() {
-        this.newsApiKey = '37bec8593888416299df95ed455407f8';
-        this.proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // より信頼性の高いプロキシ
-        this.fallbackProxy = 'https://api.allorigins.win/get';
-        this.cache = new Map();
-        this.cacheTimeout = 30 * 60 * 1000; // 30分
-        this.newsData = [];
-      }
-
-      async fetchWithMultipleProxies(url) {
-        const proxies = [
-          // Direct (CORS許可サイトの場合)
-          { url: url, type: 'direct' },
-          // AllOrigins proxy
-          { 
-            url: `${this.fallbackProxy}?url=${encodeURIComponent(url)}`,
-            type: 'allorigins'
-          }
-        ];
-
-        for (let proxy of proxies) {
-          try {
-            console.log(`🌐 Trying ${proxy.type} for: ${url.substring(0, 50)}...`);
-            
-            const response = await fetch(proxy.url);
-            if (!response.ok) {
-              throw new Error(`HTTP error: ${response.status}`);
-            }
-
-            const data = await response.text();
-            
-            if (proxy.type === 'allorigins') {
-              const parsed = JSON.parse(data);
-              return parsed.contents;
-            } else {
-              return data;
-            }
-          } catch (error) {
-            console.warn(`❌ ${proxy.type} failed:`, error.message);
-            continue;
-          }
-        }
-
-        throw new Error('All proxy methods failed');
-      }
-
-      async getNewsAPIData() {
-        const categories = ['general', 'business', 'technology'];
-        const allArticles = [];
-
-        console.log('📰 Loading NewsAPI data...');
-
-        for (let category of categories) {
-          try {
-            const cacheKey = `newsapi-${category}`;
-            const cached = this.cache.get(cacheKey);
-            
-            if (cached && (Date.now() - cached.timestamp < this.cacheTimeout)) {
-              allArticles.push(...cached.articles);
-              continue;
-            }
-
-            const url = `https://newsapi.org/v2/top-headlines?country=jp&category=${category}&pageSize=5&apiKey=${this.newsApiKey}`;
-            
-            const responseText = await this.fetchWithMultipleProxies(url);
-            const data = JSON.parse(responseText);
-            
-            if (data.status === 'ok' && data.articles) {
-              const articles = data.articles
-                .filter(article => article.title && !article.title.includes('[Removed]'))
-                .map(article => ({
-                  title: article.title,
-                  summary: (article.description || article.title).substring(0, 120) + '...',
-                  category: category,
-                  source: article.source.name,
-                  time: this.formatTime(article.publishedAt),
-                  url: article.url,
-                  image: article.urlToImage
-                }));
-
-              allArticles.push(...articles);
-              
-              // キャッシュに保存
-              this.cache.set(cacheKey, {
-                articles: articles,
-                timestamp: Date.now()
-              });
-              
-              console.log(`✅ NewsAPI ${category}: ${articles.length} articles`);
-            }
-          } catch (error) {
-            console.error(`❌ NewsAPI ${category} error:`, error);
-          }
-        }
-
-        return allArticles;
-      }
-
-      async getJapaneseNewsData() {
-        const sources = [
-          {
-            name: 'Yahoo!ニュース',
-            url: 'https://news.yahoo.co.jp',
-            category: 'general'
-          },
-          {
-            name: 'ITmedia',
-            url: 'https://www.itmedia.co.jp',
-            category: 'technology'
-          }
-        ];
-
-        const articles = [];
-        console.log('🗾 Loading Japanese news...');
-
-        for (let source of sources) {
-          try {
-            const cacheKey = `jp-${source.name}`;
-            const cached = this.cache.get(cacheKey);
-            
-            if (cached && (Date.now() - cached.timestamp < this.cacheTimeout)) {
-              articles.push(...cached.articles);
-              continue;
-            }
-
-            const htmlContent = await this.fetchWithMultipleProxies(source.url);
-            const parsed = this.parseJapaneseNews(htmlContent, source);
-            
-            articles.push(...parsed);
-            
-            // キャッシュに保存
-            this.cache.set(cacheKey, {
-              articles: parsed,
-              timestamp: Date.now()
-            });
-            
-            console.log(`✅ ${source.name}: ${parsed.length} articles`);
-          } catch (error) {
-            console.error(`❌ ${source.name} error:`, error);
-          }
-        }
-
-        return articles;
-      }
-
-      parseJapaneseNews(html, source) {
-        try {
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-          const articles = [];
-
-          // Yahoo!ニュース用のセレクタ
-          if (source.name === 'Yahoo!ニュース') {
-            const items = doc.querySelectorAll('.newsFeed_item, .sc-fjpCk, .sc-gKTREg');
-            
-            items.forEach((item, index) => {
-              if (index >= 5) return; // 最大5件
-              
-              const titleEl = item.querySelector('.newsFeed_item_title, a');
-              if (titleEl) {
-                const title = titleEl.textContent.trim();
-                if (title && title.length > 5) {
-                  articles.push({
-                    title: title,
-                    summary: title.substring(0, 80) + '...',
-                    category: source.category,
-                    source: source.name,
-                    time: this.formatTime(new Date().toISOString()),
-                    url: source.url,
-                    image: null
-                  });
-                }
-              }
-            });
-          }
-          
-          // ITmedia用のセレクタ
-          else if (source.name === 'ITmedia') {
-            const items = doc.querySelectorAll('.colBoxBody li, .gmenu_list li');
-            
-            items.forEach((item, index) => {
-              if (index >= 5) return;
-              
-              const linkEl = item.querySelector('a');
-              if (linkEl) {
-                const title = linkEl.textContent.trim();
-                if (title && title.length > 5) {
-                  articles.push({
-                    title: title,
-                    summary: title.substring(0, 80) + '...',
-                    category: source.category,
-                    source: source.name,
-                    time: this.formatTime(new Date().toISOString()),
-                    url: source.url,
-                    image: null
-                  });
-                }
-              }
-            });
-          }
-
-          return articles;
-        } catch (error) {
-          console.error('Parse error:', error);
-          return [];
-        }
-      }
-
-      formatTime(isoString) {
-        try {
-          const date = new Date(isoString);
-          const now = new Date();
-          const diffMs = now - date;
-          const diffMins = Math.floor(diffMs / 60000);
-          const diffHours = Math.floor(diffMs / 3600000);
-
-          if (diffMins < 60) {
-            return `${Math.max(1, diffMins)}分前`;
-          } else if (diffHours < 24) {
-            return `${diffHours}時間前`;
-          } else {
-            return date.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
-          }
-        } catch (error) {
-          return '最近';
-        }
-      }
-
-      async loadAllNews() {
-        try {
-          console.log('🚀 Loading all news sources...');
-          
-          // 並行してNewsAPIと日本語ニュースを取得
-          const [newsApiArticles, japaneseArticles] = await Promise.all([
-            this.getNewsAPIData(),
-            this.getJapaneseNewsData()
-          ]);
-
-          // 静的プレースホルダーニュースも追加（確実に何かが表示されるように）
-          const placeholderNews = [
-            {
-              title: '📰 News Hub システム正常動作中',
-              summary: 'ニュース取得システムが正常に動作しています。リアルタイムニュースを表示中です。',
-              category: 'general',
-              source: 'News Hub System',
-              time: '稼働中',
-              url: '#',
-              image: null
-            }
-          ];
-
-          // 全ての記事をマージ
-          const allArticles = [
-            ...placeholderNews,
-            ...newsApiArticles,
-            ...japaneseArticles
-          ];
-
-          // 重複除去
-          const uniqueArticles = this.removeDuplicates(allArticles);
-          
-          console.log(`✅ Total articles loaded: ${uniqueArticles.length}`);
-          console.log(`  - NewsAPI: ${newsApiArticles.length}`);
-          console.log(`  - Japanese: ${japaneseArticles.length}`);
-          console.log(`  - Placeholder: ${placeholderNews.length}`);
-
-          this.newsData = uniqueArticles;
-          return uniqueArticles;
-        } catch (error) {
-          console.error('❌ Critical error loading news:', error);
-          
-          // 緊急時フォールバック
-          return [{
-            title: '⚠️ ニュース取得中にエラーが発生しました',
-            summary: 'ニュースソースとの接続に問題があります。しばらく後に再試行してください。',
-            category: 'error',
-            source: 'システムエラー',
-            time: '現在',
-            url: '#',
-            image: null
-          }];
-        }
-      }
-
-      removeDuplicates(articles) {
-        const seen = new Set();
-        return articles.filter(article => {
-          const key = article.title.toLowerCase().replace(/[^a-z0-9]/g, '');
-          if (seen.has(key)) {
-            return false;
-          }
-          seen.add(key);
-          return true;
-        });
-      }
-    }
-
-    // 天気システム（簡略版）
-    class SimpleWeatherSystem {
-      constructor() {
-        this.cache = null;
-        this.cacheTimeout = 30 * 60 * 1000;
-      }
-
-      async getCurrentWeather() {
-        if (this.cache && (Date.now() - this.cache.timestamp < this.cacheTimeout)) {
-          return this.cache.data;
-        }
-
-        try {
-          console.log('🌤️ Loading weather...');
-          
-          // Open-Meteo API (より信頼性が高い)
-          const lat = 35.6762; // 東京
-          const lon = 139.6503;
-          const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=Asia/Tokyo`;
-          
-          const response = await fetch(url);
-          const data = await response.json();
-          
-          if (data.current_weather) {
-            const weatherInfo = {
-              current: {
-                temp: Math.round(data.current_weather.temperature) + '°C',
-                condition: this.getWeatherIcon(data.current_weather.weathercode) + ' ' + this.getWeatherDescription(data.current_weather.weathercode),
-                windSpeed: Math.round(data.current_weather.windspeed) + 'km/h'
-              },
-              forecast: data.daily ? data.daily.time.slice(1, 4).map((date, index) => ({
-                date: new Date(date).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }),
-                maxTemp: Math.round(data.daily.temperature_2m_max[index + 1]) + '°C',
-                minTemp: Math.round(data.daily.temperature_2m_min[index + 1]) + '°C',
-                condition: this.getWeatherIcon(data.daily.weathercode[index + 1])
-              })) : []
-            };
-            
-            this.cache = { data: weatherInfo, timestamp: Date.now() };
-            return weatherInfo;
-          }
-        } catch (error) {
-          console.error('Weather error:', error);
-        }
-
-        // フォールバック
-        return {
-          current: {
-            temp: '--°C',
-            condition: '🌤️ 東京',
-            windSpeed: '--km/h'
-          },
-          forecast: []
-        };
-      }
-
-      getWeatherIcon(code) {
-        if (code === 0) return '☀️';
-        if (code <= 3) return '🌤️';
-        if (code <= 48) return '☁️';
-        if (code <= 67) return '🌧️';
-        if (code <= 86) return '🌨️';
-        return '🌤️';
-      }
-
-      getWeatherDescription(code) {
-        if (code === 0) return '晴れ';
-        if (code <= 3) return '晴れ時々曇り';
-        if (code <= 48) return '曇り';
-        if (code <= 67) return '雨';
-        if (code <= 86) return '雪';
-        return '晴れ';
-      }
-
-      renderWeatherWidget(data) {
-        return `
-        <div class="weather-widget">
-          <div class="weather-header">
-            <h3>🌤️ 東京の天気</h3>
-            <small>最終更新: ${new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</small>
-          </div>
-          <div class="weather-current">
-            <div class="weather-main">
-              <span class="weather-temp">${data.current.temp}</span>
-              <span class="weather-condition">${data.current.condition}</span>
-              <small>風速: ${data.current.windSpeed}</small>
-            </div>
-          </div>
-          ${data.forecast.length > 0 ? `
-          <div class="weather-forecast">
-            <h4>📅 3日間予報</h4>
-            <div class="forecast-list">
-              ${data.forecast.map(day => `
-                <div class="forecast-item">
-                  <div class="forecast-date">${day.date}</div>
-                  <div class="forecast-condition">${day.condition}</div>
-                  <div class="forecast-temp">${day.maxTemp}/${day.minTemp}</div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-          ` : ''}
-        </div>
-        `;
-      }
-    }
-
-    // メイン統合システム
-    class IntegratedNewsHub {
-      constructor() {
-        this.newsSystem = new FixedNewsSystem();
-        this.weatherSystem = new SimpleWeatherSystem();
-        this.newsData = [];
-        this.currentCategory = 'all';
-        this.init();
-      }
-
-      async init() {
-        console.log('🚀 Initializing Integrated News Hub...');
-        
-        // 認証チェック
-        if (!this.checkAuth()) {
-          return;
-        }
-
-        // ダッシュボードセットアップ
-        await this.setupDashboard();
-        
-        // イベントリスナー設定
-        this.setupEventListeners();
-        
-        // 30分間隔の自動更新
-        setInterval(() => {
-          console.log('⏰ Auto refresh...');
-          this.refreshDashboard();
-        }, 30 * 60 * 1000);
-        
-        console.log('✅ Integrated News Hub ready');
-      }
-
-      checkAuth() {
-        // 簡易認証チェック（Basic認証は別で処理）
-        return true;
-      }
-
-      async setupDashboard() {
-        const main = document.querySelector('.main');
-        if (!main) return;
-
-        // ダッシュボードHTML挿入
-        const dashboardHTML = `
-        <section class="dashboard-widgets">
-          <div id="weatherWidget">
-            <div class="loading"><div class="spinner"></div><p>天気情報読み込み中...</p></div>
-          </div>
-          <div id="weightWidget">
-            <div class="weight-widget">
-              <div class="weight-header">
-                <h3>📈 体重推移グラフ</h3>
-              </div>
-              <div class="weight-chart">
-                <img src="https://i.imgur.com/ZCaqkoK.png" alt="体重推移グラフ" class="weight-chart-img" onclick="this.classList.toggle('enlarged')">
-              </div>
-            </div>
-          </div>
-        </section>
-        `;
-        
-        main.insertAdjacentHTML('afterbegin', dashboardHTML);
-
-        // データ読み込み開始
-        await this.refreshDashboard();
-      }
-
-      async refreshDashboard() {
-        try {
-          // 天気とニュースを並行読み込み
-          const [weatherData, newsData] = await Promise.all([
-            this.weatherSystem.getCurrentWeather(),
-            this.newsSystem.loadAllNews()
-          ]);
-
-          // 天気ウィジェット更新
-          const weatherWidget = document.getElementById('weatherWidget');
-          if (weatherWidget) {
-            weatherWidget.innerHTML = this.weatherSystem.renderWeatherWidget(weatherData);
-          }
-
-          // ニュース更新
-          this.newsData = newsData;
-          this.renderNews();
-          
-          this.showMessage(`📰 ${newsData.length}件のニュースと天気情報を更新しました`, 'success');
-        } catch (error) {
-          console.error('Dashboard refresh error:', error);
-          this.showMessage('ダッシュボード更新中にエラーが発生しました', 'error');
-        }
-      }
-
-      renderNews() {
-        const grid = document.getElementById('newsGrid');
-        if (!grid) return;
-
-        const filtered = this.newsData.filter(news => {
-          return this.currentCategory === 'all' || news.category === this.currentCategory;
-        });
-
-        if (filtered.length === 0) {
-          grid.innerHTML = '<div class="status-message">ニュースを読み込んでいます...</div>';
-          return;
-        }
-
-        grid.innerHTML = filtered.map(news => `
-        <article class="news-card">
-          ${news.image ? 
-            `<img src="${news.image}" alt="${news.title}" class="news-image" onerror="this.style.display='none'">` :
-            `<div class="news-image">📰</div>`
-          }
-          <div class="news-content">
-            <span class="news-category">${this.getCategoryLabel(news.category)}</span>
-            <h2 class="news-title">
-              <a href="${news.url}" target="_blank" rel="noopener noreferrer">${news.title}</a>
-            </h2>
-            <p class="news-summary">${news.summary}</p>
-            <div class="news-meta">
-              <span class="news-source">${news.source}</span>
-              <time class="news-time">${news.time}</time>
-            </div>
-          </div>
-        </article>
-        `).join('');
-      }
-
-      setupEventListeners() {
-        // ナビゲーション
-        document.querySelectorAll('.nav-item').forEach(item => {
-          item.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.selectCategory(e.target.dataset.category);
-          });
-        });
-      }
-
-      selectCategory(category) {
-        this.currentCategory = category;
-        document.querySelectorAll('.nav-item').forEach(item => {
-          item.classList.toggle('active', item.dataset.category === category);
-        });
-        this.renderNews();
-      }
-
-      getCategoryLabel(category) {
-        const labels = {
-          'general': '一般',
-          'business': 'ビジネス',
-          'technology': 'テック',
-          'sports': 'スポーツ',
-          'error': 'システム'
-        };
-        return labels[category] || category;
-      }
-
-      showMessage(message, type = 'info') {
-        const statusDiv = document.getElementById('statusMessage') || this.createStatusDiv();
-        statusDiv.textContent = message;
-        statusDiv.className = `status-message ${type}-message`;
-        statusDiv.style.display = 'block';
-        setTimeout(() => statusDiv.style.display = 'none', 5000);
-      }
-
-      createStatusDiv() {
-        const div = document.createElement('div');
-        div.id = 'statusMessage';
-        div.className = 'status-message';
-        div.style.display = 'none';
-        document.querySelector('.main').appendChild(div);
-        return div;
-      }
-    }
-
-    // 認証後に自動初期化
-    document.addEventListener('DOMContentLoaded', () => {
-      // 少し遅延させて初期化
-      setTimeout(() => {
-        window.integratedNewsHub = new IntegratedNewsHub();
-        console.log('🎛️ Integrated News Hub started');
-      }, 2000);
-    });
-
-    console.log('🔧 Fixed news integration system loaded');
-    
-        </script>
-        
-        <!-- 🌍 Guardian & Reddit API Integration -->
-        <script>
-        
-    // 🌍 Guardian & Reddit API Integration
-    class GuardianRedditNewsSystem {
-      constructor() {
-        this.guardianBaseUrl = 'https://content.guardianapis.com/search';
-        this.guardianApiKey = 'test'; // 無料テストキー
-        this.redditBaseUrl = 'https://www.reddit.com/r';
-        this.cache = new Map();
-        this.cacheTimeout = 30 * 60 * 1000; // 30分
-      }
-
-      async fetchWithProxy(url) {
-        const proxies = [
-          { url: url, type: 'direct' },
-          { 
-            url: `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-            type: 'allorigins'
-          }
-        ];
-
-        for (let proxy of proxies) {
-          try {
-            const response = await fetch(proxy.url);
-            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-
-            const data = await response.text();
-            
-            if (proxy.type === 'allorigins') {
-              const parsed = JSON.parse(data);
-              return parsed.contents;
-            } else {
-              return data;
-            }
-          } catch (error) {
-            console.warn(`${proxy.type} failed:`, error.message);
-            continue;
-          }
-        }
-
-        throw new Error('All proxy methods failed for: ' + url);
-      }
-
-      async getGuardianNews() {
-        const cacheKey = 'guardian-news';
-        const cached = this.cache.get(cacheKey);
-        
-        if (cached && (Date.now() - cached.timestamp < this.cacheTimeout)) {
-          return cached.articles;
-        }
-
-        console.log('🏛️ Fetching Guardian news...');
-
-        try {
-          const sections = ['world', 'business', 'technology', 'politics'];
-          const allArticles = [];
-
-          for (let section of sections) {
-            try {
-              const url = new URL(this.guardianBaseUrl);
-              url.searchParams.set('api-key', this.guardianApiKey);
-              url.searchParams.set('section', section);
-              url.searchParams.set('show-fields', 'headline,thumbnail,short-url,body-text');
-              url.searchParams.set('page-size', '5');
-              url.searchParams.set('order-by', 'newest');
-
-              const responseText = await this.fetchWithProxy(url.toString());
-              const data = JSON.parse(responseText);
-
-              if (data.response && data.response.results) {
-                const articles = data.response.results.map(article => ({
-                  title: this.cleanTitle(article.webTitle),
-                  summary: this.generateSummary(article.fields?.bodyText || article.webTitle),
-                  category: this.mapGuardianSection(section),
-                  source: 'The Guardian',
-                  time: this.formatTime(article.webPublicationDate),
-                  url: article.webUrl,
-                  image: article.fields?.thumbnail || null
-                }));
-
-                allArticles.push(...articles);
-                console.log(`✅ Guardian ${section}: ${articles.length} articles`);
-              }
-            } catch (sectionError) {
-              console.error(`Guardian ${section} error:`, sectionError);
-            }
-          }
-
-          // キャッシュに保存
-          this.cache.set(cacheKey, {
-            articles: allArticles,
-            timestamp: Date.now()
-          });
-
-          return allArticles;
-        } catch (error) {
-          console.error('Guardian API error:', error);
-          return [];
-        }
-      }
-
-      async getRedditNews() {
-        const cacheKey = 'reddit-news';
-        const cached = this.cache.get(cacheKey);
-        
-        if (cached && (Date.now() - cached.timestamp < this.cacheTimeout)) {
-          return cached.articles;
-        }
-
-        console.log('💬 Fetching Reddit news...');
-
-        try {
-          const subreddits = [
-            { name: 'technology', category: 'technology' },
-            { name: 'programming', category: 'technology' },
-            { name: 'worldnews', category: 'world' },
-            { name: 'business', category: 'business' }
-          ];
-          
-          const allArticles = [];
-
-          for (let subreddit of subreddits) {
-            try {
-              const url = `${this.redditBaseUrl}/${subreddit.name}/hot.json?limit=5`;
-              
-              const responseText = await this.fetchWithProxy(url);
-              const data = JSON.parse(responseText);
-
-              if (data.data && data.data.children) {
-                const articles = data.data.children
-                  .filter(post => {
-                    const postData = post.data;
-                    return !postData.stickied && 
-                           !postData.is_self && 
-                           postData.title &&
-                           !postData.title.toLowerCase().includes('megathread') &&
-                           postData.score > 50; // 50以上のスコアのみ
-                  })
-                  .map(post => {
-                    const postData = post.data;
-                    return {
-                      title: this.cleanTitle(postData.title),
-                      summary: this.generateRedditSummary(postData),
-                      category: subreddit.category,
-                      source: `Reddit r/${subreddit.name}`,
-                      time: this.formatTime(new Date(postData.created_utc * 1000).toISOString()),
-                      url: `https://reddit.com${postData.permalink}`,
-                      image: this.getRedditImage(postData),
-                      score: postData.score,
-                      comments: postData.num_comments
-                    };
-                  });
-
-                allArticles.push(...articles);
-                console.log(`✅ Reddit r/${subreddit.name}: ${articles.length} articles`);
-              }
-            } catch (subredditError) {
-              console.error(`Reddit r/${subreddit.name} error:`, subredditError);
-            }
-          }
-
-          // キャッシュに保存
-          this.cache.set(cacheKey, {
-            articles: allArticles,
-            timestamp: Date.now()
-          });
-
-          return allArticles;
-        } catch (error) {
-          console.error('Reddit API error:', error);
-          return [];
-        }
-      }
-
-      cleanTitle(title) {
-        if (!title) return 'タイトル不明';
-        return title.replace(/\s+/g, ' ')
-                   .replace(/[\r\n]+/g, '')
-                   .trim()
-                   .substring(0, 120);
-      }
-
-      generateSummary(bodyText) {
-        if (!bodyText) return '';
-        
-        // HTMLタグを除去し、最初の120文字を取得
-        const cleanText = bodyText.replace(/<[^>]*>/g, '')
-                                  .replace(/\s+/g, ' ')
-                                  .trim();
-        
-        return cleanText.length > 120 ? 
-               cleanText.substring(0, 120) + '...' : 
-               cleanText;
-      }
-
-      generateRedditSummary(postData) {
-        const parts = [];
-        
-        if (postData.score) {
-          parts.push(`👍 ${postData.score}`);
-        }
-        
-        if (postData.num_comments) {
-          parts.push(`💬 ${postData.num_comments}`);
-        }
-        
-        if (postData.selftext && postData.selftext.length > 0) {
-          const text = postData.selftext.substring(0, 80);
-          parts.push(text + (postData.selftext.length > 80 ? '...' : ''));
-        } else if (postData.url && !postData.url.includes('reddit.com')) {
-          parts.push(`🔗 外部リンク: ${new URL(postData.url).hostname}`);
-        }
-
-        return parts.join(' • ') || 'Reddit投稿を確認してください';
-      }
-
-      getRedditImage(postData) {
-        if (postData.preview && postData.preview.images && postData.preview.images[0]) {
-          return postData.preview.images[0].source.url.replace(/&amp;/g, '&');
-        }
-        
-        if (postData.thumbnail && 
-            postData.thumbnail !== 'self' && 
-            postData.thumbnail !== 'default' && 
-            postData.thumbnail.startsWith('http')) {
-          return postData.thumbnail;
-        }
-        
-        return null;
-      }
-
-      mapGuardianSection(section) {
-        const mapping = {
-          'world': 'world',
-          'business': 'business', 
-          'technology': 'technology',
-          'politics': 'world'
-        };
-        return mapping[section] || 'general';
-      }
-
-      formatTime(isoString) {
-        try {
-          const date = new Date(isoString);
-          const now = new Date();
-          const diffMs = now - date;
-          const diffMins = Math.floor(diffMs / 60000);
-          const diffHours = Math.floor(diffMs / 3600000);
-          const diffDays = Math.floor(diffMs / 86400000);
-
-          if (diffMins < 60) {
-            return `${Math.max(1, diffMins)}分前`;
-          } else if (diffHours < 24) {
-            return `${diffHours}時間前`;
-          } else if (diffDays < 7) {
-            return `${diffDays}日前`;
-          } else {
-            return date.toLocaleDateString('ja-JP', {
-              month: 'short',
-              day: 'numeric'
-            });
-          }
-        } catch (error) {
-          return '最近';
-        }
-      }
-
-      async loadAllGuardianRedditNews() {
-        try {
-          console.log('🌍 Loading Guardian & Reddit news...');
-          
-          const [guardianArticles, redditArticles] = await Promise.all([
-            this.getGuardianNews(),
-            this.getRedditNews()
-          ]);
-
-          const allArticles = [...guardianArticles, ...redditArticles];
-          
-          console.log(`✅ Guardian & Reddit loaded: ${allArticles.length} articles`);
-          console.log(`  - Guardian: ${guardianArticles.length}`);
-          console.log(`  - Reddit: ${redditArticles.length}`);
-          
-          return allArticles;
-        } catch (error) {
-          console.error('Guardian & Reddit loading error:', error);
-          return [];
-        }
-      }
-    }
-
-    // 既存のNewsSystemに統合
-    if (typeof window !== 'undefined' && window.integratedNewsHub) {
-      const newsHub = window.integratedNewsHub;
-      
-      // Guardian & Reddit システムを追加
-      newsHub.guardianRedditSystem = new GuardianRedditNewsSystem();
-      
-      // 既存のrefreshDashboard methodを拡張
-      const originalRefreshDashboard = newsHub.refreshDashboard;
-      
-      newsHub.refreshDashboard = async function() {
-        try {
-          console.log('🔄 Enhanced dashboard refresh with Guardian & Reddit...');
-          
-          // 天気、既存ニュース、Guardian & Reddit を並行取得
-          const [weatherData, existingNewsData, guardianRedditData] = await Promise.all([
-            this.weatherSystem.getCurrentWeather(),
-            this.newsSystem.loadAllNews(),
-            this.guardianRedditSystem.loadAllGuardianRedditNews()
-          ]);
-
-          // 天気ウィジェット更新
-          const weatherWidget = document.getElementById('weatherWidget');
-          if (weatherWidget) {
-            weatherWidget.innerHTML = this.weatherSystem.renderWeatherWidget(weatherData);
-          }
-
-          // 全ニュースをマージ
-          const allNewsData = [...existingNewsData, ...guardianRedditData];
-          
-          // 重複除去
-          this.newsData = this.removeDuplicatesByTitle(allNewsData);
-          this.renderNews();
-          
-          this.showMessage(
-            `📰 ${this.newsData.length}件のニュース取得完了 (Guardian: ${guardianRedditData.filter(a => a.source.includes('Guardian')).length}件, Reddit: ${guardianRedditData.filter(a => a.source.includes('Reddit')).length}件含む)`, 
-            'success'
-          );
-        } catch (error) {
-          console.error('Enhanced dashboard refresh error:', error);
-          this.showMessage('ダッシュボード更新中にエラーが発生しました', 'error');
-        }
-      };
-      
-      // カテゴリラベルを更新
-      const originalGetCategoryLabel = newsHub.getCategoryLabel;
-      newsHub.getCategoryLabel = function(category) {
-        const labels = {
-          'general': '一般',
-          'business': 'ビジネス',
-          'technology': 'テック',
-          'sports': 'スポーツ',
-          'world': '国際',
-          'error': 'システム'
-        };
-        return labels[category] || category;
-      };
-
-      // 重複除去メソッド追加（既にあるかもしれないが念のため）
-      if (!newsHub.removeDuplicatesByTitle) {
-        newsHub.removeDuplicatesByTitle = function(articles) {
-          const seen = new Set();
-          return articles.filter(article => {
-            const key = article.title.toLowerCase()
-                                   .replace(/[^a-z0-9]/g, '')
-                                   .substring(0, 50);
-            if (seen.has(key)) {
-              return false;
-            }
-            seen.add(key);
-            return true;
-          });
-        };
-      }
-
-      // ナビゲーションに「国際」カテゴリを追加
-      setTimeout(() => {
-        const nav = document.querySelector('.nav');
-        if (nav && !document.querySelector('[data-category="world"]')) {
-          const worldLink = document.createElement('a');
-          worldLink.href = '#';
-          worldLink.className = 'nav-item';
-          worldLink.dataset.category = 'world';
-          worldLink.textContent = '国際';
-          
-          worldLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            newsHub.selectCategory('world');
-          });
-          
-          nav.appendChild(worldLink);
-          console.log('🌍 Added "国際" category to navigation');
-        }
-      }, 3000);
-      
-      console.log('🌍 Guardian & Reddit integration completed');
-      
-      // 初期読み込みを再実行
-      setTimeout(() => {
-        newsHub.refreshDashboard();
-      }, 1000);
-      
-    } else {
-      console.log('⏳ Waiting for integratedNewsHub to initialize...');
-      
-      // 5秒後に再試行
-      setTimeout(() => {
-        if (window.integratedNewsHub) {
-          // 上記と同じコードを実行
-          window.integratedNewsHub.guardianRedditSystem = new GuardianRedditNewsSystem();
-          console.log('🌍 Guardian & Reddit integration completed (delayed)');
-        }
-      }, 5000);
-    }
-
-    console.log('🏛️💬 Guardian & Reddit API system loaded');
-    
-        </script>
-        </body>
+</body>
 </html>
