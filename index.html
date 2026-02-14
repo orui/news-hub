@@ -640,5 +640,442 @@
         // Console message
         console.log('📰 News Hub initialized. Waiting for news sources configuration.');
     </script>
-</body>
+
+        <script>
+        
+    // 📰 News Scraping System with Proxy
+    class NewsScrapingSystem {
+      constructor() {
+        this.proxyEndpoint = 'https://api.allorigins.win/get'; // CORS proxy
+        this.newsSources = [
+          {
+            name: 'Yahoo!ニュース',
+            url: 'https://news.yahoo.co.jp/',
+            category: 'general',
+            selector: '.newsFeed_item',
+            titleSelector: '.newsFeed_item_title',
+            linkSelector: 'a',
+            timeSelector: '.newsFeed_item_date'
+          },
+          {
+            name: 'ITmedia',
+            url: 'https://www.itmedia.co.jp/',
+            category: 'technology',
+            selector: '.colBoxBody li',
+            titleSelector: 'a',
+            linkSelector: 'a',
+            timeSelector: '.date'
+          },
+          {
+            name: 'CNET Japan',
+            url: 'https://japan.cnet.com/',
+            category: 'technology',
+            selector: '.latestList li',
+            titleSelector: '.latestList_link',
+            linkSelector: 'a',
+            timeSelector: '.latestList_date'
+          }
+        ];
+        this.cache = new Map();
+        this.cacheTimeout = 5 * 60 * 1000; // 5分
+      }
+
+      async fetchWithProxy(url) {
+        try {
+          const proxyUrl = `${this.proxyEndpoint}?url=${encodeURIComponent(url)}`;
+          const response = await fetch(proxyUrl);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          return data.contents;
+        } catch (error) {
+          console.error('Proxy fetch error:', error);
+          return null;
+        }
+      }
+
+      parseHTML(htmlString) {
+        const parser = new DOMParser();
+        return parser.parseFromString(htmlString, 'text/html');
+      }
+
+      extractNewsFromSource(source, doc) {
+        const articles = [];
+        
+        try {
+          const newsItems = doc.querySelectorAll(source.selector);
+          
+          newsItems.forEach((item, index) => {
+            if (index >= 10) return; // 最大10件まで
+            
+            const titleElement = item.querySelector(source.titleSelector);
+            const linkElement = item.querySelector(source.linkSelector);
+            const timeElement = item.querySelector(source.timeSelector);
+            
+            if (titleElement && linkElement) {
+              const title = titleElement.textContent.trim();
+              const link = linkElement.href || linkElement.getAttribute('href');
+              const time = timeElement ? timeElement.textContent.trim() : '時間不明';
+              
+              // 相対URLを絶対URLに変換
+              const absoluteLink = link.startsWith('http') ? 
+                link : 
+                new URL(link, source.url).href;
+              
+              articles.push({
+                title: title,
+                summary: this.generateSummary(title),
+                category: source.category,
+                source: source.name,
+                time: this.formatTime(time),
+                url: absoluteLink,
+                image: null
+              });
+            }
+          });
+        } catch (error) {
+          console.error(`Error extracting from ${source.name}:`, error);
+        }
+        
+        return articles;
+      }
+
+      generateSummary(title) {
+        // タイトルから簡易要約を生成
+        return title.length > 50 ? 
+          title.substring(0, 50) + '...' : 
+          title;
+      }
+
+      formatTime(timeString) {
+        // 時間表示を統一フォーマットに変換
+        const now = new Date();
+        
+        if (timeString.includes('分前')) {
+          const minutes = parseInt(timeString.match(/\d+/)?.[0] || '0');
+          return `${minutes}分前`;
+        } else if (timeString.includes('時間前')) {
+          const hours = parseInt(timeString.match(/\d+/)?.[0] || '0');
+          return `${hours}時間前`;
+        } else if (timeString.includes('日前')) {
+          const days = parseInt(timeString.match(/\d+/)?.[0] || '0');
+          return `${days}日前`;
+        } else if (timeString.match(/\d{1,2}:\d{2}/)) {
+          return timeString;
+        }
+        
+        return timeString || `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+      }
+
+      async loadNewsFromSource(source) {
+        const cacheKey = source.name;
+        const cached = this.cache.get(cacheKey);
+        
+        // キャッシュチェック
+        if (cached && (Date.now() - cached.timestamp < this.cacheTimeout)) {
+          return cached.articles;
+        }
+        
+        console.log(`📰 Loading news from ${source.name}...`);
+        
+        const htmlContent = await this.fetchWithProxy(source.url);
+        if (!htmlContent) {
+          return [];
+        }
+        
+        const doc = this.parseHTML(htmlContent);
+        const articles = this.extractNewsFromSource(source, doc);
+        
+        // キャッシュに保存
+        this.cache.set(cacheKey, {
+          articles: articles,
+          timestamp: Date.now()
+        });
+        
+        return articles;
+      }
+
+      async loadAllNews() {
+        console.log('🔄 Loading news from all sources...');
+        
+        const allArticles = [];
+        const promises = this.newsSources.map(source => this.loadNewsFromSource(source));
+        
+        try {
+          const results = await Promise.allSettled(promises);
+          
+          results.forEach((result, index) => {
+            if (result.status === 'fulfilled') {
+              allArticles.push(...result.value);
+            } else {
+              console.error(`Failed to load from ${this.newsSources[index].name}:`, result.reason);
+            }
+          });
+          
+          // 重複除去とソート
+          const uniqueArticles = this.removeDuplicates(allArticles);
+          const sortedArticles = this.sortByTime(uniqueArticles);
+          
+          console.log(`✅ Loaded ${sortedArticles.length} articles from ${this.newsSources.length} sources`);
+          return sortedArticles;
+          
+        } catch (error) {
+          console.error('Error loading news:', error);
+          return [];
+        }
+      }
+
+      removeDuplicates(articles) {
+        const seen = new Set();
+        return articles.filter(article => {
+          const key = article.title + article.source;
+          if (seen.has(key)) {
+            return false;
+          }
+          seen.add(key);
+          return true;
+        });
+      }
+
+      sortByTime(articles) {
+        return articles.sort((a, b) => {
+          // 簡易的な時間ソート（実際の時刻解析は複雑）
+          if (a.time.includes('分前') && b.time.includes('分前')) {
+            const aMinutes = parseInt(a.time.match(/\d+/)?.[0] || '0');
+            const bMinutes = parseInt(b.time.match(/\d+/)?.[0] || '0');
+            return aMinutes - bMinutes;
+          }
+          return 0; // その他は元の順序を維持
+        });
+      }
+
+      // 日経新聞専用の特別メソッド（注意事項付き）
+      async loadNikkeiNews() {
+        console.warn('⚠️  Nikkei scraping: Please ensure compliance with terms of service');
+        
+        const nikkeiSource = {
+          name: '日本経済新聞',
+          url: 'https://www.nikkei.com/',
+          category: 'business',
+          selector: '.m-miM09_item, .m-miM09-listWrap_item',
+          titleSelector: '.m-miM09_titleText, .m-miM09-listWrap_title',
+          linkSelector: 'a',
+          timeSelector: '.m-miM09_date, .m-miM09-listWrap_date'
+        };
+        
+        return await this.loadNewsFromSource(nikkeiSource);
+      }
+    }
+
+    // News Hubに統合
+    if (typeof window !== 'undefined' && window.newsHub) {
+      window.newsHub.scrapingSystem = new NewsScrapingSystem();
+      
+      // 既存のloadNews methodを置き換え
+      window.newsHub.loadNews = async function() {
+        const articles = await this.scrapingSystem.loadAllNews();
+        this.newsData = articles;
+        this.filterNews();
+        
+        if (articles.length > 0) {
+          this.showStatusMessage(`📰 ${articles.length}件のニュースを取得しました`, 'success');
+        } else {
+          this.showStatusMessage('ニュースの取得に失敗しました', 'error');
+        }
+      };
+      
+      // 日経ニュース専用メソッド追加
+      window.newsHub.loadNikkeiNews = async function() {
+        const articles = await this.scrapingSystem.loadNikkeiNews();
+        this.newsData = [...this.newsData, ...articles];
+        this.filterNews();
+        
+        this.showStatusMessage(`📊 日経ニュース ${articles.length}件を追加しました`, 'success');
+      };
+      
+      // 自動読み込み開始
+      setTimeout(() => {
+        window.newsHub.loadNews();
+      }, 1000);
+      
+      console.log('🔄 News scraping system integrated successfully');
+    }
+    
+        </script>
+        
+        <script>
+        
+    // 🌐 Alternative News API Sources (Legal & Free)
+    class NewsAPISystem {
+      constructor() {
+        this.apiSources = [
+          {
+            name: 'NewsAPI (Free)',
+            url: 'https://newsapi.org/v2/top-headlines',
+            params: {
+              country: 'jp',
+              apiKey: 'YOUR_API_KEY', // 無料登録で取得
+              pageSize: 10
+            },
+            category: 'general'
+          },
+          {
+            name: 'Guardian API',
+            url: 'https://content.guardianapis.com/search',
+            params: {
+              'api-key': 'test', // testキーでも利用可能
+              'show-fields': 'headline,thumbnail,short-url',
+              pageSize: 10
+            },
+            category: 'international'
+          },
+          {
+            name: 'Reddit API (Tech News)',
+            url: 'https://www.reddit.com/r/technology/.json',
+            params: {
+              limit: 10
+            },
+            category: 'technology'
+          }
+        ];
+      }
+
+      async loadFromAPI(source) {
+        try {
+          const url = new URL(source.url);
+          Object.entries(source.params).forEach(([key, value]) => {
+            url.searchParams.set(key, value);
+          });
+
+          const response = await fetch(url.toString());
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          return this.parseAPIResponse(data, source);
+        } catch (error) {
+          console.error(`Error loading from ${source.name}:`, error);
+          return [];
+        }
+      }
+
+      parseAPIResponse(data, source) {
+        const articles = [];
+        
+        try {
+          if (source.name === 'NewsAPI (Free)' && data.articles) {
+            data.articles.forEach(article => {
+              articles.push({
+                title: article.title,
+                summary: article.description || article.title,
+                category: source.category,
+                source: article.source.name,
+                time: this.formatAPITime(article.publishedAt),
+                url: article.url,
+                image: article.urlToImage
+              });
+            });
+          } else if (source.name === 'Guardian API' && data.response?.results) {
+            data.response.results.forEach(article => {
+              articles.push({
+                title: article.webTitle,
+                summary: article.fields?.headline || article.webTitle,
+                category: source.category,
+                source: 'The Guardian',
+                time: this.formatAPITime(article.webPublicationDate),
+                url: article.webUrl,
+                image: article.fields?.thumbnail
+              });
+            });
+          } else if (source.name.includes('Reddit') && data.data?.children) {
+            data.data.children.forEach(post => {
+              const postData = post.data;
+              articles.push({
+                title: postData.title,
+                summary: postData.selftext?.substring(0, 100) + '...' || postData.title,
+                category: source.category,
+                source: 'Reddit',
+                time: this.formatAPITime(new Date(postData.created_utc * 1000).toISOString()),
+                url: `https://reddit.com${postData.permalink}`,
+                image: postData.thumbnail !== 'self' ? postData.thumbnail : null
+              });
+            });
+          }
+        } catch (error) {
+          console.error('Error parsing API response:', error);
+        }
+        
+        return articles;
+      }
+
+      formatAPITime(timeString) {
+        try {
+          const date = new Date(timeString);
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+          
+          if (diffMins < 60) {
+            return `${diffMins}分前`;
+          } else if (diffHours < 24) {
+            return `${diffHours}時間前`;
+          } else {
+            return `${diffDays}日前`;
+          }
+        } catch (error) {
+          return '時間不明';
+        }
+      }
+
+      async loadAllAPINews() {
+        const allArticles = [];
+        const promises = this.apiSources.map(source => this.loadFromAPI(source));
+        
+        try {
+          const results = await Promise.allSettled(promises);
+          
+          results.forEach((result, index) => {
+            if (result.status === 'fulfilled') {
+              allArticles.push(...result.value);
+            } else {
+              console.error(`Failed to load from API ${this.apiSources[index].name}:`, result.reason);
+            }
+          });
+          
+          return allArticles;
+        } catch (error) {
+          console.error('Error loading API news:', error);
+          return [];
+        }
+      }
+    }
+
+    // 使用方法の説明
+    console.log(`
+📰 News API Integration Guide:
+
+1. NewsAPI.org (無料):
+   - サインアップ: https://newsapi.org/
+   - 無料プランで1000リクエスト/日
+   - 日本のニュース取得可能
+
+2. Guardian API (無料):
+   - 国際ニュース（英語）
+   - API Key不要でテスト可能
+
+3. Reddit API (無料):
+   - テクノロジー系ニュース
+   - 認証不要
+
+推奨: NewsAPI.orgで無料API Keyを取得
+`);
+    
+        </script>
+        </body>
 </html>
