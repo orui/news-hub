@@ -841,73 +841,548 @@
 
     <!-- JavaScript will be added separately -->
     <script>
-        // Placeholder for authentication and dashboard functionality
-        console.log('📰 News Hub Pro - Professional Dashboard Loaded');
+
+    // 🔧 Integrated Functionality System for Professional Dashboard
+    class ProfessionalNewsHub {
+      constructor() {
+        this.newsApiKey = '37bec8593888416299df95ed455407f8';
+        this.cache = new Map();
+        this.cacheTimeout = 30 * 60 * 1000; // 30分
+        this.newsData = [];
+        this.init();
+      }
+
+      async init() {
+        console.log('🚀 Initializing Professional News Hub...');
         
-        // Theme Toggle
-        document.getElementById('themeBtn').addEventListener('click', () => {
-            const currentTheme = document.body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.body.setAttribute('data-theme', newTheme);
-            document.getElementById('themeBtn').innerHTML = newTheme === 'dark' ? '☀️' : '🌙';
-            localStorage.setItem('newsHubTheme', newTheme);
+        // 認証チェック
+        if (!this.checkAuthentication()) {
+          this.showAuthenticationForm();
+          return;
+        }
+
+        // ダッシュボード初期化
+        await this.initializeDashboard();
+        
+        // イベントリスナー設定
+        this.setupEventListeners();
+        
+        // 自動更新 (30分間隔)
+        setInterval(() => {
+          console.log('⏰ Auto-refreshing dashboard...');
+          this.refreshAllData();
+        }, this.cacheTimeout);
+        
+        console.log('✅ Professional News Hub ready');
+      }
+
+      checkAuthentication() {
+        const authData = localStorage.getItem('newsHubAuth');
+        if (!authData) return false;
+        
+        try {
+          const parsed = JSON.parse(authData);
+          const sessionTimeout = 4 * 60 * 60 * 1000; // 4時間
+          return (Date.now() - parsed.timestamp < sessionTimeout);
+        } catch {
+          return false;
+        }
+      }
+
+      showAuthenticationForm() {
+        const authHTML = `
+        <div class="auth-overlay" id="authOverlay">
+          <div class="auth-form">
+            <div class="auth-title">🔐 News Hub Pro Access</div>
+            <input type="text" id="authUsername" class="auth-input" placeholder="ユーザー名" autocomplete="username">
+            <input type="password" id="authPassword" class="auth-input" placeholder="パスワード" autocomplete="current-password">
+            <button class="auth-button" onclick="newsHub.authenticate()">ログイン</button>
+            <div id="authError" class="auth-error"></div>
+          </div>
+        </div>
+        `;
+        
+        document.body.insertAdjacentHTML('afterbegin', authHTML);
+        document.querySelector('.main-content').classList.add('hidden');
+        
+        // Enter keyでログイン
+        document.getElementById('authPassword').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') this.authenticate();
         });
+        
+        setTimeout(() => document.getElementById('authUsername').focus(), 100);
+      }
 
-        // Initialize theme from localStorage
-        const savedTheme = localStorage.getItem('newsHubTheme') || 'light';
-        document.body.setAttribute('data-theme', savedTheme);
-        document.getElementById('themeBtn').innerHTML = savedTheme === 'dark' ? '☀️' : '🌙';
+      authenticate() {
+        const username = document.getElementById('authUsername').value;
+        const password = document.getElementById('authPassword').value;
+        const errorEl = document.getElementById('authError');
+        
+        if (username === 'hisao' && password === 'newshub2026') {
+          const authData = { timestamp: Date.now(), user: username };
+          localStorage.setItem('newsHubAuth', JSON.stringify(authData));
+          
+          document.getElementById('authOverlay').remove();
+          document.querySelector('.main-content').classList.remove('hidden');
+          
+          this.initializeDashboard();
+        } else {
+          errorEl.textContent = 'ユーザー名またはパスワードが間違っています';
+          document.getElementById('authPassword').value = '';
+          document.getElementById('authPassword').focus();
+        }
+      }
 
-        // Generate Calendar
-        function generateCalendar() {
-            const calendar = document.getElementById('calendar');
-            const today = new Date();
-            const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).getDay();
-            
-            // Days header
-            ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach(day => {
-                const dayHeader = document.createElement('div');
-                dayHeader.className = 'calendar-header';
-                dayHeader.textContent = day;
-                calendar.appendChild(dayHeader);
-            });
-            
-            // Empty cells for first week
-            for (let i = 0; i < firstDay; i++) {
-                const emptyDay = document.createElement('div');
-                emptyDay.className = 'calendar-day';
-                calendar.appendChild(emptyDay);
-            }
-            
-            // Days
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day';
-                dayElement.textContent = day;
-                
-                if (day === today.getDate()) {
-                    dayElement.classList.add('today');
-                }
-                
-                calendar.appendChild(dayElement);
-            }
+      async initializeDashboard() {
+        console.log('📊 Initializing dashboard data...');
+        await this.refreshAllData();
+      }
+
+      async refreshAllData() {
+        try {
+          // 全データを並行取得
+          const [newsData, weatherData] = await Promise.all([
+            this.loadAllNews(),
+            this.loadWeather()
+          ]);
+
+          // UIを更新
+          this.updateNewsColumns(newsData);
+          this.updateWeatherWidget(weatherData);
+          this.updateMarketData();
+          
+          console.log(`✅ Dashboard updated with ${newsData.length} articles`);
+        } catch (error) {
+          console.error('Dashboard refresh error:', error);
+        }
+      }
+
+      async loadAllNews() {
+        try {
+          console.log('📰 Loading news from all sources...');
+          
+          const [newsApiData, guardianData, redditData] = await Promise.all([
+            this.loadNewsAPI(),
+            this.loadGuardianNews(),
+            this.loadRedditNews()
+          ]);
+
+          const allNews = [...newsApiData, ...guardianData, ...redditData];
+          const uniqueNews = this.removeDuplicates(allNews);
+          
+          this.newsData = uniqueNews;
+          return uniqueNews;
+        } catch (error) {
+          console.error('News loading error:', error);
+          return this.getFallbackNews();
+        }
+      }
+
+      async loadNewsAPI() {
+        const cacheKey = 'newsapi-data';
+        if (this.isCached(cacheKey)) return this.getCache(cacheKey);
+
+        try {
+          const categories = ['general', 'business', 'technology'];
+          const promises = categories.map(cat => this.fetchNewsAPICategory(cat));
+          const results = await Promise.allSettled(promises);
+          
+          const articles = results
+            .filter(r => r.status === 'fulfilled')
+            .flatMap(r => r.value);
+
+          this.setCache(cacheKey, articles);
+          return articles;
+        } catch (error) {
+          console.error('NewsAPI error:', error);
+          return [];
+        }
+      }
+
+      async fetchNewsAPICategory(category) {
+        const url = `https://newsapi.org/v2/top-headlines?country=jp&category=${category}&pageSize=5&apiKey=${this.newsApiKey}`;
+        
+        try {
+          const response = await this.fetchWithProxy(url);
+          const data = JSON.parse(response);
+          
+          if (data.status === 'ok' && data.articles) {
+            return data.articles
+              .filter(a => a.title && !a.title.includes('[Removed]'))
+              .map(article => ({
+                title: article.title,
+                summary: (article.description || '').substring(0, 120) + '...',
+                category: category,
+                source: article.source.name,
+                time: this.formatTime(article.publishedAt),
+                url: article.url,
+                image: article.urlToImage
+              }));
+          }
+        } catch (error) {
+          console.error(`NewsAPI ${category} error:`, error);
         }
         
-        generateCalendar();
+        return [];
+      }
+
+      async loadGuardianNews() {
+        const cacheKey = 'guardian-data';
+        if (this.isCached(cacheKey)) return this.getCache(cacheKey);
+
+        try {
+          const sections = ['world', 'business', 'technology'];
+          const promises = sections.map(sec => this.fetchGuardianSection(sec));
+          const results = await Promise.allSettled(promises);
+          
+          const articles = results
+            .filter(r => r.status === 'fulfilled')
+            .flatMap(r => r.value);
+
+          this.setCache(cacheKey, articles);
+          return articles;
+        } catch (error) {
+          console.error('Guardian error:', error);
+          return [];
+        }
+      }
+
+      async fetchGuardianSection(section) {
+        const url = `https://content.guardianapis.com/search?section=${section}&api-key=test&page-size=3&show-fields=thumbnail`;
         
-        // Refresh button placeholder
-        document.getElementById('refreshBtn').addEventListener('click', () => {
-            console.log('🔄 Refreshing dashboard...');
-        });
+        try {
+          const response = await this.fetchWithProxy(url);
+          const data = JSON.parse(response);
+          
+          if (data.response && data.response.results) {
+            return data.response.results.map(article => ({
+              title: article.webTitle,
+              summary: article.webTitle.substring(0, 100) + '...',
+              category: section === 'world' ? 'world' : section,
+              source: 'The Guardian',
+              time: this.formatTime(article.webPublicationDate),
+              url: article.webUrl,
+              image: article.fields?.thumbnail || null
+            }));
+          }
+        } catch (error) {
+          console.error(`Guardian ${section} error:`, error);
+        }
         
-        // Logout button placeholder
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            if (confirm('ログアウトしますか？')) {
-                localStorage.removeItem('newsHubAuth');
-                location.reload();
+        return [];
+      }
+
+      async loadRedditNews() {
+        const cacheKey = 'reddit-data';
+        if (this.isCached(cacheKey)) return this.getCache(cacheKey);
+
+        try {
+          const subreddits = ['technology', 'programming', 'worldnews'];
+          const promises = subreddits.map(sub => this.fetchRedditSubreddit(sub));
+          const results = await Promise.allSettled(promises);
+          
+          const articles = results
+            .filter(r => r.status === 'fulfilled')
+            .flatMap(r => r.value);
+
+          this.setCache(cacheKey, articles);
+          return articles;
+        } catch (error) {
+          console.error('Reddit error:', error);
+          return [];
+        }
+      }
+
+      async fetchRedditSubreddit(subreddit) {
+        const url = `https://www.reddit.com/r/${subreddit}/hot.json?limit=3`;
+        
+        try {
+          const response = await this.fetchWithProxy(url);
+          const data = JSON.parse(response);
+          
+          if (data.data && data.data.children) {
+            return data.data.children
+              .filter(post => post.data.score > 50 && !post.data.stickied)
+              .map(post => {
+                const postData = post.data;
+                return {
+                  title: postData.title,
+                  summary: `👍 ${postData.score} 💬 ${postData.num_comments}`,
+                  category: subreddit === 'worldnews' ? 'world' : 'technology',
+                  source: `Reddit r/${subreddit}`,
+                  time: this.formatTime(new Date(postData.created_utc * 1000).toISOString()),
+                  url: `https://reddit.com${postData.permalink}`,
+                  image: null
+                };
+              });
+          }
+        } catch (error) {
+          console.error(`Reddit ${subreddit} error:`, error);
+        }
+        
+        return [];
+      }
+
+      async fetchWithProxy(url) {
+        const proxies = [
+          { url: url, type: 'direct' },
+          { 
+            url: `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+            type: 'allorigins'
+          }
+        ];
+
+        for (let proxy of proxies) {
+          try {
+            const response = await fetch(proxy.url);
+            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+
+            const data = await response.text();
+            
+            if (proxy.type === 'allorigins') {
+              const parsed = JSON.parse(data);
+              return parsed.contents;
+            } else {
+              return data;
             }
+          } catch (error) {
+            console.warn(`${proxy.type} failed:`, error.message);
+            continue;
+          }
+        }
+
+        throw new Error('All proxy methods failed for: ' + url);
+      }
+
+      async loadWeather() {
+        const cacheKey = 'weather-data';
+        if (this.isCached(cacheKey)) return this.getCache(cacheKey);
+
+        try {
+          const lat = 35.6762; // Tokyo
+          const lon = 139.6503;
+          const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min&timezone=Asia/Tokyo`;
+          
+          const response = await fetch(url);
+          const data = await response.json();
+          
+          if (data.current_weather) {
+            const weatherData = {
+              temp: Math.round(data.current_weather.temperature) + '°',
+              condition: this.getWeatherIcon(data.current_weather.weathercode) + ' Tokyo',
+              windSpeed: Math.round(data.current_weather.windspeed) + 'km/h'
+            };
+            
+            this.setCache(cacheKey, weatherData);
+            return weatherData;
+          }
+        } catch (error) {
+          console.error('Weather error:', error);
+        }
+
+        return { temp: '--°', condition: '🌤️ Tokyo', windSpeed: '--km/h' };
+      }
+
+      updateNewsColumns(newsData) {
+        // Tech Trendsを更新
+        const techNews = newsData.filter(n => n.category === 'technology').slice(0, 3);
+        this.updateNewsSection('techTrends', techNews, 'TECH TRENDS');
+
+        // Breaking Newsを更新  
+        const worldNews = newsData.filter(n => n.category === 'world' || n.category === 'general').slice(0, 3);
+        this.updateNewsSection('breakingNews', worldNews, 'BREAKING NEWS');
+
+        // Trendingを更新
+        const redditNews = newsData.filter(n => n.source.includes('Reddit')).slice(0, 3);
+        this.updateNewsSection('trendingNews', redditNews, 'TRENDING');
+
+        // メインストーリーを更新
+        const mainStory = newsData.find(n => n.image) || newsData[0];
+        if (mainStory) {
+          this.updateMainStory(mainStory);
+        }
+
+        // セカンダリストーリーを更新
+        const secondaryStories = newsData
+          .filter(n => n.source.includes('Guardian') || n.source.includes('Bloomberg'))
+          .slice(0, 2);
+        this.updateSecondaryStories(secondaryStories);
+      }
+
+      updateNewsSection(sectionId, newsItems, sectionTitle) {
+        const section = document.getElementById(sectionId);
+        if (!section) return;
+
+        if (newsItems.length === 0) {
+          section.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+          return;
+        }
+
+        section.innerHTML = newsItems.map(item => `
+        <div class="news-item">
+          <div class="news-category">${this.getCategoryLabel(item.category)}</div>
+          <div class="news-title" onclick="window.open('${item.url}', '_blank')">${item.title}</div>
+          <div class="news-summary">${item.summary}</div>
+          <div class="news-meta">
+            <span>${item.source}</span>
+            <span>${item.time}</span>
+          </div>
+        </div>
+        `).join('');
+      }
+
+      updateMainStory(story) {
+        const mainStory = document.getElementById('mainStory');
+        if (!mainStory || !story) return;
+
+        mainStory.innerHTML = `
+        <div class="main-story-bg" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('${story.image || ''}')"></div>
+        <div class="main-story-content">
+          <span class="main-story-category">TOP STORIES</span>
+          <h1 class="main-story-title">${story.title}</h1>
+          <p class="main-story-summary">${story.summary}</p>
+        </div>
+        `;
+
+        mainStory.onclick = () => window.open(story.url, '_blank');
+      }
+
+      updateSecondaryStories(stories) {
+        const container = document.getElementById('secondaryStories');
+        if (!container) return;
+
+        if (stories.length === 0) {
+          stories = [
+            { source: 'BLOOMBERG', title: 'Market Analysis Today' },
+            { source: 'THE VERGE', title: 'Tech Innovation Report' }
+          ];
+        }
+
+        container.innerHTML = stories.map(story => `
+        <div class="secondary-story" onclick="window.open('${story.url || '#'}', '_blank')">
+          <div class="secondary-story-source">${story.source.toUpperCase()}</div>
+          <h3 class="secondary-story-title">${story.title}</h3>
+        </div>
+        `).join('');
+      }
+
+      updateWeatherWidget(weatherData) {
+        const widget = document.getElementById('weatherWidget');
+        if (!widget) return;
+
+        widget.innerHTML = `
+        <div class="weather-temp">${weatherData.temp}</div>
+        <div class="weather-condition">${weatherData.condition}</div>
+        `;
+      }
+
+      updateMarketData() {
+        // Mock market data - 実際のAPI統合は別途必要
+        console.log('📊 Market data updated');
+      }
+
+      setupEventListeners() {
+        // リフレッシュボタン
+        const refreshBtn = document.getElementById('refreshBtn');
+        if (refreshBtn) {
+          refreshBtn.onclick = () => this.refreshAllData();
+        }
+
+        // ログアウトボタン
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+          logoutBtn.onclick = () => {
+            if (confirm('ログアウトしますか？')) {
+              localStorage.removeItem('newsHubAuth');
+              location.reload();
+            }
+          };
+        }
+      }
+
+      // Utility Methods
+      formatTime(isoString) {
+        try {
+          const date = new Date(isoString);
+          const now = new Date();
+          const diffMins = Math.floor((now - date) / 60000);
+          
+          if (diffMins < 60) return `${Math.max(1, diffMins)}分前`;
+          if (diffMins < 1440) return `${Math.floor(diffMins / 60)}時間前`;
+          return date.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
+        } catch {
+          return '最近';
+        }
+      }
+
+      getCategoryLabel(category) {
+        const labels = {
+          'general': '一般',
+          'business': 'ビジネス',
+          'technology': 'TECH',
+          'world': '国際',
+          'sports': 'スポーツ'
+        };
+        return labels[category] || category.toUpperCase();
+      }
+
+      getWeatherIcon(code) {
+        if (code === 0) return '☀️';
+        if (code <= 3) return '🌤️';
+        if (code <= 48) return '☁️';
+        if (code <= 67) return '🌧️';
+        return '🌤️';
+      }
+
+      removeDuplicates(articles) {
+        const seen = new Set();
+        return articles.filter(article => {
+          const key = article.title.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 50);
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
         });
-    </script>
+      }
+
+      getFallbackNews() {
+        return [
+          {
+            title: '📰 News Hub Pro システム稼働中',
+            summary: 'プロフェッショナルダッシュボードが正常に動作しています',
+            category: 'general',
+            source: 'News Hub Pro',
+            time: '稼働中',
+            url: '#'
+          }
+        ];
+      }
+
+      // Cache Management
+      isCached(key) {
+        const cached = this.cache.get(key);
+        return cached && (Date.now() - cached.timestamp < this.cacheTimeout);
+      }
+
+      getCache(key) {
+        return this.cache.get(key).data;
+      }
+
+      setCache(key, data) {
+        this.cache.set(key, { data, timestamp: Date.now() });
+      }
+    }
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      // 少し遅延させて初期化
+      setTimeout(() => {
+        window.newsHub = new ProfessionalNewsHub();
+        console.log('🎛️ Professional News Hub initialized');
+      }, 500);
+    });
+
+    console.log('🔧 Professional News Hub functionality loaded');
+    
+</script>
 </body>
 </html>
