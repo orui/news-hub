@@ -376,6 +376,213 @@
             outline: 2px solid var(--primary-color);
             outline-offset: 2px;
         }
+    
+      /* 🌤️ Weather Widget Styles */
+      .weather-widget {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow);
+      }
+
+      .weather-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0.5rem;
+      }
+
+      .weather-header h3 {
+        margin: 0;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+      }
+
+      .weather-header small {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+      }
+
+      .weather-current {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .weather-main {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .weather-temp {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--accent-color);
+      }
+
+      .weather-condition {
+        color: var(--text-primary);
+        font-size: 1rem;
+      }
+
+      .weather-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+
+      .weather-forecast {
+        border-top: 1px solid var(--border-color);
+        padding-top: 1rem;
+      }
+
+      .weather-forecast h4 {
+        margin: 0 0 0.75rem 0;
+        font-size: 1rem;
+        color: var(--text-primary);
+      }
+
+      .forecast-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+      }
+
+      .forecast-item {
+        background: var(--bg-secondary);
+        padding: 0.75rem;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 0.8rem;
+      }
+
+      .forecast-date {
+        font-weight: bold;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+      }
+
+      .forecast-condition {
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+      }
+
+      .forecast-temp {
+        color: var(--primary-color);
+        font-weight: bold;
+      }
+
+      /* 📈 Weight Chart Widget Styles */
+      .weight-widget {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow);
+      }
+
+      .weight-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0.5rem;
+      }
+
+      .weight-header h3 {
+        margin: 0;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+      }
+
+      .weight-header small {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+      }
+
+      .weight-chart {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .weight-chart-img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+
+      .weight-chart-img:hover {
+        transform: scale(1.02);
+      }
+
+      .weight-chart-img.enlarged {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(1.5);
+        z-index: 9999;
+        background: var(--bg-primary);
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        cursor: zoom-out;
+      }
+
+      .weight-info {
+        background: var(--bg-secondary);
+        padding: 1rem;
+        border-radius: 8px;
+      }
+
+      .weight-note {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        line-height: 1.4;
+      }
+
+      /* 🎛️ Dashboard Layout */
+      .dashboard-widgets {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      /* 📱 Responsive adjustments */
+      @media (max-width: 768px) {
+        .weather-current {
+          grid-template-columns: 1fr;
+        }
+        
+        .forecast-list {
+          grid-template-columns: 1fr;
+        }
+        
+        .dashboard-widgets {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+        
+        .weight-chart-img.enlarged {
+          transform: translate(-50%, -50%) scale(1.2);
+          width: 95vw;
+          height: auto;
+        }
+      }
+
+      /* 🔐 Authentication styles are already included in the auth system */
     </style>
 </head>
 <body>
@@ -466,7 +673,7 @@
                 // Auto-refresh every 5 minutes
                 setInterval(() => {
                     this.loadNews();
-                }, 5 * 60 * 1000);
+                }, 30 * 60 * 1000);
             }
 
             setupTheme() {
@@ -677,7 +884,7 @@
           }
         ];
         this.cache = new Map();
-        this.cacheTimeout = 5 * 60 * 1000; // 5分
+        this.cacheTimeout = 30 * 60 * 1000; // 5分
       }
 
       async fetchWithProxy(url) {
@@ -1421,6 +1628,538 @@
       console.log('🔑 NewsAPI integration completed successfully');
       console.log('📊 Available categories: general, business, technology, sports, health');
     }
+    
+        </script>
+        
+        <script>
+        
+    // 🔐 Basic Authentication System
+    class BasicAuthSystem {
+      constructor() {
+        this.authenticated = false;
+        this.credentials = {
+          username: 'hisao',
+          password: 'newshub2026'  // セキュアなパスワードに変更可能
+        };
+        this.sessionTimeout = 4 * 60 * 60 * 1000; // 4時間
+        this.init();
+      }
+
+      init() {
+        this.checkAuthStatus();
+        this.setupAuthUI();
+      }
+
+      checkAuthStatus() {
+        const authData = localStorage.getItem('newsHubAuth');
+        if (authData) {
+          try {
+            const parsed = JSON.parse(authData);
+            const now = Date.now();
+            
+            if (now - parsed.timestamp < this.sessionTimeout) {
+              this.authenticated = true;
+              this.showMainContent();
+              return;
+            } else {
+              localStorage.removeItem('newsHubAuth');
+            }
+          } catch (error) {
+            localStorage.removeItem('newsHubAuth');
+          }
+        }
+        
+        this.showAuthForm();
+      }
+
+      setupAuthUI() {
+        // 認証フォームのスタイルを追加
+        const authStyles = `
+        <style>
+          .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+          }
+          
+          .auth-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+          }
+          
+          .auth-title {
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-size: 1.5rem;
+          }
+          
+          .auth-input {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+          }
+          
+          .auth-button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+          }
+          
+          .auth-button:hover {
+            background: #5a6fd8;
+          }
+          
+          .auth-error {
+            color: #e74c3c;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+          }
+          
+          .main-content.hidden {
+            display: none;
+          }
+        </style>
+        `;
+        
+        document.head.insertAdjacentHTML('beforeend', authStyles);
+      }
+
+      showAuthForm() {
+        const authHTML = `
+        <div class="auth-overlay" id="authOverlay">
+          <div class="auth-form">
+            <div class="auth-title">
+              🔐 News Hub Access
+            </div>
+            <input type="text" id="authUsername" class="auth-input" placeholder="ユーザー名" autocomplete="username">
+            <input type="password" id="authPassword" class="auth-input" placeholder="パスワード" autocomplete="current-password">
+            <button class="auth-button" onclick="authSystem.authenticate()">ログイン</button>
+            <div id="authError" class="auth-error"></div>
+          </div>
+        </div>
+        `;
+        
+        document.body.insertAdjacentHTML('afterbegin', authHTML);
+        
+        // メインコンテンツを隠す
+        const mainContent = document.querySelector('.header');
+        if (mainContent) {
+          mainContent.classList.add('hidden');
+        }
+        const mainContainer = document.querySelector('.main');
+        if (mainContainer) {
+          mainContainer.classList.add('hidden');
+        }
+
+        // Enter キーでログイン
+        document.getElementById('authPassword').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            this.authenticate();
+          }
+        });
+        
+        // フォーカス設定
+        setTimeout(() => {
+          document.getElementById('authUsername').focus();
+        }, 100);
+      }
+
+      authenticate() {
+        const username = document.getElementById('authUsername').value;
+        const password = document.getElementById('authPassword').value;
+        const errorEl = document.getElementById('authError');
+        
+        if (username === this.credentials.username && password === this.credentials.password) {
+          // 認証成功
+          this.authenticated = true;
+          
+          // セッション情報保存
+          const authData = {
+            timestamp: Date.now(),
+            user: username
+          };
+          localStorage.setItem('newsHubAuth', JSON.stringify(authData));
+          
+          this.showMainContent();
+        } else {
+          // 認証失敗
+          errorEl.textContent = 'ユーザー名またはパスワードが間違っています';
+          
+          // パスワード欄をクリア
+          document.getElementById('authPassword').value = '';
+          document.getElementById('authPassword').focus();
+        }
+      }
+
+      showMainContent() {
+        // 認証オーバーレイを削除
+        const overlay = document.getElementById('authOverlay');
+        if (overlay) {
+          overlay.remove();
+        }
+        
+        // メインコンテンツを表示
+        const elements = document.querySelectorAll('.hidden');
+        elements.forEach(el => el.classList.remove('hidden'));
+        
+        console.log('🔐 User authenticated successfully');
+      }
+
+      logout() {
+        localStorage.removeItem('newsHubAuth');
+        location.reload();
+      }
+
+      isAuthenticated() {
+        return this.authenticated;
+      }
+    }
+
+    // グローバルに認証システムを設定
+    const authSystem = new BasicAuthSystem();
+    window.authSystem = authSystem;
+    
+        </script>
+        
+        <script>
+        
+    // 🌤️ Weather Information System
+    class WeatherSystem {
+      constructor() {
+        this.cache = null;
+        this.cacheTimeout = 30 * 60 * 1000; // 30分キャッシュ
+        this.location = 'Tokyo';
+      }
+
+      async getCurrentWeather() {
+        // キャッシュチェック
+        if (this.cache && (Date.now() - this.cache.timestamp < this.cacheTimeout)) {
+          return this.cache.data;
+        }
+
+        console.log('🌤️ Fetching weather data...');
+
+        try {
+          // wttr.inから天気データを取得
+          const proxyUrl = 'https://api.allorigins.win/get';
+          const weatherUrl = `https://wttr.in/${this.location}?format=j1`;
+          const fullUrl = `${proxyUrl}?url=${encodeURIComponent(weatherUrl)}`;
+          
+          const response = await fetch(fullUrl);
+          if (!response.ok) {
+            throw new Error(`Weather API error: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          const weatherData = JSON.parse(data.contents);
+          
+          const current = weatherData.current_condition[0];
+          const forecast = weatherData.weather;
+          
+          const weatherInfo = {
+            current: {
+              temp: current.temp_C + '°C',
+              condition: this.getWeatherEmoji(current.weatherCode) + ' ' + current.weatherDesc[0].value,
+              humidity: current.humidity + '%',
+              windSpeed: current.windspeedKmph + 'km/h',
+              windDir: current.winddir16Point,
+              feelsLike: current.FeelsLikeC + '°C'
+            },
+            forecast: forecast.slice(0, 3).map(day => ({
+              date: new Date(day.date).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }),
+              maxTemp: day.maxtempC + '°C',
+              minTemp: day.mintempC + '°C',
+              condition: this.getWeatherEmoji(day.hourly[4].weatherCode) + ' ' + day.hourly[4].weatherDesc[0].value
+            }))
+          };
+          
+          // キャッシュに保存
+          this.cache = {
+            data: weatherInfo,
+            timestamp: Date.now()
+          };
+          
+          return weatherInfo;
+        } catch (error) {
+          console.error('Weather fetch error:', error);
+          
+          // フォールバック データ
+          return {
+            current: {
+              temp: '--°C',
+              condition: '🌤️ 情報取得中...',
+              humidity: '--%',
+              windSpeed: '--km/h',
+              windDir: '--',
+              feelsLike: '--°C'
+            },
+            forecast: []
+          };
+        }
+      }
+
+      getWeatherEmoji(weatherCode) {
+        const code = parseInt(weatherCode);
+        
+        if (code === 113) return '☀️'; // Sunny
+        if (code === 116) return '🌤️'; // Partly cloudy
+        if (code === 119 || code === 122) return '☁️'; // Cloudy
+        if (code === 143 || code === 248) return '🌫️'; // Fog
+        if (code >= 176 && code <= 200) return '🌧️'; // Rain
+        if (code >= 227 && code <= 230) return '🌨️'; // Snow
+        if (code >= 200 && code <= 230) return '⛈️'; // Thunder
+        if (code >= 260 && code <= 284) return '🌧️'; // Light rain
+        if (code >= 293 && code <= 299) return '🌦️'; // Light rain shower
+        if (code >= 302 && code <= 359) return '🌧️'; // Heavy rain
+        if (code >= 362 && code <= 374) return '🌨️'; // Snow
+        if (code >= 377 && code <= 395) return '❄️'; // Heavy snow
+        
+        return '🌤️'; // Default
+      }
+
+      renderWeatherWidget(weatherData) {
+        const current = weatherData.current;
+        const forecast = weatherData.forecast;
+        
+        return `
+        <div class="weather-widget">
+          <div class="weather-header">
+            <h3>🌤️ 東京の天気</h3>
+            <small>最終更新: ${new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</small>
+          </div>
+          
+          <div class="weather-current">
+            <div class="weather-main">
+              <span class="weather-temp">${current.temp}</span>
+              <span class="weather-condition">${current.condition}</span>
+            </div>
+            <div class="weather-details">
+              <div>💧 湿度: ${current.humidity}</div>
+              <div>💨 風速: ${current.windSpeed} ${current.windDir}</div>
+              <div>🌡️ 体感: ${current.feelsLike}</div>
+            </div>
+          </div>
+          
+          ${forecast.length > 0 ? `
+          <div class="weather-forecast">
+            <h4>📅 3日間予報</h4>
+            <div class="forecast-list">
+              ${forecast.map(day => `
+                <div class="forecast-item">
+                  <div class="forecast-date">${day.date}</div>
+                  <div class="forecast-condition">${day.condition}</div>
+                  <div class="forecast-temp">${day.maxTemp}/${day.minTemp}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          ` : ''}
+        </div>
+        `;
+      }
+    }
+
+    // 天気システムをNews Hubに統合
+    if (typeof window !== 'undefined') {
+      window.weatherSystem = new WeatherSystem();
+    }
+    
+        </script>
+        
+        <script>
+        
+    // 📈 Weight Chart Integration System  
+    class WeightChartSystem {
+      constructor() {
+        this.chartImageUrl = 'https://i.imgur.com/ZCaqkoK.png'; // 既存のimgur URL
+      }
+
+      renderWeightWidget() {
+        return `
+        <div class="weight-widget">
+          <div class="weight-header">
+            <h3>📈 体重推移グラフ</h3>
+            <small>データソース: Withings</small>
+          </div>
+          
+          <div class="weight-chart">
+            <img src="${this.chartImageUrl}" 
+                 alt="体重推移グラフ" 
+                 class="weight-chart-img"
+                 onclick="this.classList.toggle('enlarged')"
+                 title="クリックで拡大">
+          </div>
+          
+          <div class="weight-info">
+            <div class="weight-note">
+              💡 グラフをクリックすると拡大表示されます<br>
+              📊 毎週金曜日9時に自動更新されます
+            </div>
+          </div>
+        </div>
+        `;
+      }
+    }
+
+    // 体重チャートシステムをNews Hubに統合
+    if (typeof window !== 'undefined') {
+      window.weightChartSystem = new WeightChartSystem();
+    }
+    
+        </script>
+        
+        <script>
+        
+    // 📊 Enhanced News Hub with Dashboard
+    class EnhancedNewsHub extends NewsHub {
+      constructor() {
+        super();
+        this.updateInterval = 30 * 60 * 1000; // 30分に変更
+        this.setupDashboard();
+      }
+
+      async setupDashboard() {
+        // 認証チェック
+        if (!window.authSystem || !window.authSystem.isAuthenticated()) {
+          return;
+        }
+
+        console.log('📊 Setting up enhanced dashboard...');
+        
+        // ダッシュボードウィジェット用のコンテナを追加
+        const main = document.querySelector('.main');
+        if (main) {
+          const dashboardHTML = `
+          <section class="dashboard-widgets" id="dashboardWidgets">
+            <!-- 天気予報ウィジェット -->
+            <div id="weatherWidget">
+              <div class="loading">
+                <div class="spinner"></div>
+                <p>天気情報を読み込み中...</p>
+              </div>
+            </div>
+            
+            <!-- 体重チャートウィジェット -->
+            <div id="weightWidget">
+              ${window.weightChartSystem ? window.weightChartSystem.renderWeightWidget() : ''}
+            </div>
+          </section>
+          `;
+          
+          main.insertAdjacentHTML('afterbegin', dashboardHTML);
+        }
+
+        // ウィジェットを初期化
+        await this.loadDashboardData();
+      }
+
+      async loadDashboardData() {
+        // 天気予報を読み込み
+        if (window.weatherSystem) {
+          try {
+            const weatherData = await window.weatherSystem.getCurrentWeather();
+            const weatherWidget = document.getElementById('weatherWidget');
+            if (weatherWidget) {
+              weatherWidget.innerHTML = window.weatherSystem.renderWeatherWidget(weatherData);
+            }
+          } catch (error) {
+            console.error('Weather loading error:', error);
+          }
+        }
+
+        // ニュースも並行して読み込み
+        this.loadNews();
+      }
+
+      // オーバーライド: 自動更新間隔を30分に変更
+      init() {
+        super.init();
+        
+        // 既存の5分間隔を停止して30分間隔に変更
+        clearInterval(this.autoRefreshTimer);
+        
+        this.autoRefreshTimer = setInterval(() => {
+          console.log('⏰ Auto-refreshing news and dashboard (30 min interval)...');
+          this.loadDashboardData();
+        }, this.updateInterval);
+      }
+
+      // ダッシュボード手動更新
+      async refreshDashboard() {
+        console.log('🔄 Manually refreshing dashboard...');
+        this.showStatusMessage('🔄 ダッシュボードを更新中...', 'info');
+        
+        await this.loadDashboardData();
+        
+        this.showStatusMessage('✅ ダッシュボードが更新されました', 'success');
+      }
+    }
+
+    // 認証後にEnhanced News Hubを初期化
+    const originalShowMainContent = window.authSystem.showMainContent;
+    window.authSystem.showMainContent = function() {
+      originalShowMainContent.call(this);
+      
+      // 認証成功後にEnhanced News Hubを初期化
+      setTimeout(() => {
+        if (window.newsHub) {
+          // 既存のnewsHubをEnhancedNewsHubで置き換え
+          window.newsHub = new EnhancedNewsHub();
+          console.log('🚀 Enhanced News Hub initialized');
+        }
+      }, 1000);
+    };
+
+    // 手動更新ボタンをヘッダーに追加
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const controls = document.querySelector('.controls');
+        if (controls && window.authSystem && window.authSystem.isAuthenticated()) {
+          const refreshBtn = document.createElement('button');
+          refreshBtn.className = 'theme-toggle';
+          refreshBtn.innerHTML = '🔄';
+          refreshBtn.title = 'ダッシュボード更新';
+          refreshBtn.onclick = () => {
+            if (window.newsHub && window.newsHub.refreshDashboard) {
+              window.newsHub.refreshDashboard();
+            }
+          };
+          
+          const logoutBtn = document.createElement('button');
+          logoutBtn.className = 'theme-toggle';
+          logoutBtn.innerHTML = '🚪';
+          logoutBtn.title = 'ログアウト';
+          logoutBtn.style.marginLeft = '0.5rem';
+          logoutBtn.onclick = () => window.authSystem.logout();
+          
+          controls.appendChild(refreshBtn);
+          controls.appendChild(logoutBtn);
+        }
+      }, 2000);
+    });
+
+    console.log('🎛️ Enhanced News Hub system loaded');
     
         </script>
         </body>
